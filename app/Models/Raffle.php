@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Raffle extends Model
@@ -22,6 +23,16 @@ class Raffle extends Model
     public static $awardTypeMap = [
         self::SHIP_TO_DESIGNATED_ADDRESS => '按收货地址发货',
         self::CONTACT_INITIATOR_BY_WINNER => '让中奖者联系我',
+    ];
+
+    const STATUS_NOT_END = 0;
+    const STATUS_ENDED = 1;
+    const STATUS_EXPIRED = 2;
+
+    public static $statusMap = [
+        self::STATUS_NOT_END => '未开奖',
+        self::STATUS_ENDED => '已开奖',
+        self::STATUS_EXPIRED => '已过期',
     ];
 
     protected $table = 'raffle';

@@ -17,6 +17,7 @@ class CreateRaffleTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('user_id')->comment('用户id');
             $table->string('name')->nullable()->comment('活动标题');
+            $table->string('img')->nullable()->comment('活动奖品第一张图');
             $table->unsignedTinyInteger('draw_type')->comment('开奖方式 1 时间 2 人数 3 即时开奖');
             $table->timestamp('draw_time')->comment('开奖时间/截止抽奖时间');
             $table->unsignedInteger('draw_participants')->nullable()->comment('开奖要求人数');
@@ -28,6 +29,7 @@ class CreateRaffleTable extends Migration
             $table->unsignedBigInteger('contact_id')->nullable()->comment('中奖者联系方式');
             $table->unsignedTinyInteger('status')->default(0)->comment('开奖状态 0 未开奖 1 已开奖 2 已过期');
             $table->unsignedInteger('current_participants')->default(0)->comment('当前参与人数');
+            $table->unsignedTinyInteger('sort')->default(0)->comment('抽奖排序值');
             $table->timestamps();
         });
     }

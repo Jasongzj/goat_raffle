@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AwardPicture;
 use App\Http\Requests\RaffleStoreRequest;
+use App\Http\Resources\RaffleResource;
 use App\Models\Raffle;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Support\Facades\Auth;
@@ -15,6 +17,34 @@ class RaffleController extends Controller
      */
     public function index()
     {
+        // 未开奖，按开奖截止时间排序
+        $list = Raffle::query()
+            ->where('status', Raffle::STATUS_NOT_END)
+            ->select([
+                'id', 'name', 'draw_time', 'img'
+            ])
+            ->orderByDesc('draw_time')
+            ->offset(3)
+            ->paginate();
+        return RaffleResource::collection($list);
+    }
+
+    /**
+     * 首页置顶抽奖
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
+    public function top()
+    {
+        $list = Raffle::query()
+            ->where('status', Raffle::STATUS_NOT_END)
+            ->select([
+                'id', 'name', 'draw_time', 'img'
+            ])
+            ->orderByDesc('sort')
+            ->orderByDesc('draw_time')
+            ->limit(3)
+            ->get();
+        return RaffleResource::collection($list);
     }
 
     /**
@@ -44,6 +74,9 @@ class RaffleController extends Controller
             $attributes['name'] = '奖品：';
             foreach ($awards as $award) {
                 $attributes['name'] .= $award['name'] . ' x ' . $award['amount'];
+                if (empty($attributes['img']) && !empty($award['img'])) {
+                    $attributes['img'] = $award['img'];
+                }
             }
 
             $user = Auth::guard('api')->user();
@@ -58,5 +91,17 @@ class RaffleController extends Controller
         });
 
         return $this->message('发起抽奖成功');
+    }
+
+    /**
+     * 上传奖品图
+     * @param AwardPicture $request
+     * @return mixed
+     */
+    public function uploadAwardPic(AwardPicture $request)
+    {
+        $url = $this->uploadRequestImg('awards', $request->file('img'));
+
+        return $this->success($url);
     }
 }

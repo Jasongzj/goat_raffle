@@ -17,8 +17,10 @@ Route::get('wx_auth', 'AuthController@wxAuth');   // 微信授权登录
 
 
 Route::group(['middleware' => 'auth:api'], function () {
-    // 发起抽奖
-    Route::post('raffle', 'RaffleController@store');
+    Route::get('raffle', 'RaffleController@index');  // 普通抽奖列表
+    Route::get('raffle/top', 'RaffleController@top');
+    Route::post('raffle', 'RaffleController@store');    // 发起抽奖
+    Route::post('raffle/upload_award', 'RaffleController@uploadAwardPic'); // 上传奖品图
 
 
     // 用户联系方式

@@ -18,9 +18,11 @@ Route::get('wx_auth', 'AuthController@wxAuth');   // 微信授权登录
 
 Route::group(['middleware' => 'auth:api'], function () {
     Route::get('raffle', 'RaffleController@index');  // 普通抽奖列表
-    Route::get('raffle/top', 'RaffleController@top');
+    Route::get('raffle/top', 'RaffleController@top');  // 置顶的抽奖
     Route::post('raffle', 'RaffleController@store');    // 发起抽奖
     Route::post('raffle/upload_award', 'RaffleController@uploadAwardPic'); // 上传奖品图
+    Route::post('raffle/upload_context', 'RaffleController@uploadContext'); // 上传奖品图
+    Route::post('raffle/upload_subs', 'RaffleController@uploadSubscription'); // 上传奖品图
 
 
     // 用户联系方式
@@ -29,15 +31,18 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::put('users/contacts/{contact}', 'UserContactsController@update');
     Route::delete('users/contacts/{contact}', 'UserContactsController@destroy');
 });
+
 // 当前抽奖列表
-
-
 
 // 编辑抽奖信息
 
-// 更新用户资料
+// 用户信息授权
 
-// 我的抽奖列表
+// 我的全部抽奖列表
+
+// 我发起的抽奖
+
+// 我的中奖记录
 
 // 参与抽奖
 

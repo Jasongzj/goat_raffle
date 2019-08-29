@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AwardPicture;
+use App\Http\Requests\ContextPicture;
 use App\Http\Requests\RaffleStoreRequest;
+use App\Http\Requests\SubscriptionPicture;
 use App\Http\Resources\RaffleResource;
 use App\Models\Raffle;
-use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -103,5 +104,45 @@ class RaffleController extends Controller
         $url = $this->uploadRequestImg('awards', $request->file('img'));
 
         return $this->success($url);
+    }
+
+    /**
+     * 上传图文图片
+     * @param ContextPicture $request
+     * @return mixed
+     */
+    public function uploadContext(ContextPicture $request)
+    {
+        $url = $this->uploadRequestImg('contexts', $request->file('img'));
+
+        return $this->success($url);
+    }
+
+    /**
+     * 上传关注二维码
+     * @param SubscriptionPicture $request
+     * @return mixed
+     */
+    public function uploadSubscription(SubscriptionPicture $request)
+    {
+        $url = $this->uploadRequestImg('subscriptions', $request->file('img'));
+
+        return $this->success($url);
+    }
+
+    /**
+     * 我发起的抽奖
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
+    public function launchedRaffle()
+    {
+        $user = Auth::guard('api')->user();
+        $list = Raffle::query()
+            ->where('user_id', $user->id)
+            ->select([
+                'id', 'name', 'draw_time', 'img', 'status'
+            ])
+            ->get();
+        return RaffleResource::collection($list);
     }
 }

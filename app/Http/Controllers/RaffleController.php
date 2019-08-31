@@ -66,7 +66,7 @@ class RaffleController extends Controller
     {
         $attributes = $request->only([
             'draw_type', 'draw_time', 'draw_participants', 'desc',
-            'copy_title', 'copy_content', 'award_type', 'contact_id',
+            'context', 'award_type', 'contact_id',
         ]);
         $awards = $request->input('awards');
 
@@ -86,8 +86,7 @@ class RaffleController extends Controller
             // 保存奖项
             $raffle->awards()->createMany($awards);
 
-            // 用户全部抽奖、发起抽奖记录+1
-            $user->stat()->increment('raffle_amount', 1);
+            // 用户发起抽奖记录+1
             $user->stat()->increment('launched_raffle_amount', 1);
         });
 

@@ -54,7 +54,13 @@ class RaffleController extends Controller
      */
     public function show(Raffle $raffle)
     {
+        $raffle->load('userContact');
+        if ($raffle->current_participants) {
+            $raffle->load(['participants', function($query) {
 
+            }]);
+        }
+        return $this->success($raffle);
     }
 
     /**
@@ -141,6 +147,7 @@ class RaffleController extends Controller
             ->select([
                 'id', 'name', 'draw_time', 'img', 'status'
             ])
+            ->orderByDesc('id')
             ->get();
         return RaffleResource::collection($list);
     }

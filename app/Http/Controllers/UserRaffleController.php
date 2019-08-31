@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserRaffleResource;
 use App\Models\Raffle;
 use App\Models\UserRaffle;
 use Carbon\Carbon;
@@ -11,11 +12,26 @@ use Illuminate\Support\Facades\DB;
 
 class UserRaffleController extends Controller
 {
+    /**
+     * 我参与的抽奖
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
     public function participatedRaffle()
     {
         $user = Auth::guard('api')->user();
+        $list = UserRaffle::query()->where('user_raffle.user_id', $user->id)
+            ->join('raffle', 'user_raffle.raffle_id', '=', 'raffle.id')
+            ->select(['raffle.id', 'raffle.name', 'raffle.draw_time', 'raffle.img'])
+            ->orderBy('user_raffle.id')
+            ->paginate(5);
+        return UserRaffleResource::collection($list);
     }
 
+    /**
+     * 参与抽奖
+     * @param Raffle $raffle
+     * @return mixed
+     */
     public function store(Raffle $raffle)
     {
         if (Carbon::now() > $raffle->draw_time) {
@@ -39,8 +55,12 @@ class UserRaffleController extends Controller
             ]);
             $userRaffle->save();
 
+            // 当前参与人数+1
             $raffle->current_participants += 1;
             $raffle->save();
+
+            // 我参与的抽奖记录+1
+            $user->stat()->increment('participated_raffle_amount', 1);
         });
 
         return $this->message('参与成功');

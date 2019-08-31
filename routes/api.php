@@ -19,12 +19,14 @@ Route::get('wx_auth', 'AuthController@wxAuth');   // 微信授权登录
 Route::group(['middleware' => 'auth:api'], function () {
     Route::get('raffle', 'RaffleController@index');  // 普通抽奖列表
     Route::get('raffle/top', 'RaffleController@top');  // 置顶的抽奖
-    Route::get('raffle/{raffle}', 'RaffleController@show'); // 抽奖详情
+    Route::get('raffle/{raffle}', 'RaffleController@show')->where('raffle', '[0-9]+'); // 抽奖详情
     Route::post('raffle', 'RaffleController@store');    // 发起抽奖
     Route::post('raffle/upload_award', 'RaffleController@uploadAwardPic'); // 上传奖品图
     Route::post('raffle/upload_context', 'RaffleController@uploadContext'); // 上传奖品图
     Route::post('raffle/upload_subs', 'RaffleController@uploadSubscription'); // 上传奖品图
 
+    Route::get('raffle/launch', 'RaffleController@launchedRaffle'); // 我发起的抽奖
+    Route::get('raffle/participate', 'UserRaffleController@participatedRaffle');  // 我参与的抽奖
     Route::post('raffle/participate/{raffle}', 'UserRaffleController@store');   // 参与抽奖
 
 

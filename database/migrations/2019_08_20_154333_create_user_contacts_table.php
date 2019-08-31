@@ -16,9 +16,11 @@ class CreateUserContactsTable extends Migration
         Schema::create('user_contacts', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('user_id');
-            $table->string('phone')->nullable()->comment('手机号');
-            $table->string('wechat')->nullable()->comment('微信号');
-            $table->string('qrcode')->nullable()->comment('二维码');
+            $table->unsignedTinyInteger('type')->comment('联系类型 1 一键复制 2 快捷关注');
+            $table->unsignedTinyInteger('subs_type')->nullable()->comment('快捷关注类型 1 微信号 2 公众号 3 微信群 4 小程序 5 其他');
+            $table->string('title')->nullable()->comment('引导文案');
+            $table->string('content')->comment('正文显示内容');
+            $table->string('img')->nullable()->comment('二维码图片');
             $table->timestamps();
         });
     }

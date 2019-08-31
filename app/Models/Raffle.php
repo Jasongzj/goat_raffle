@@ -64,4 +64,9 @@ class Raffle extends Model
     {
         return $this->hasMany(RaffleAward::class);
     }
+
+    public function participants()
+    {
+        return $this->hasMany(UserRaffle::class, 'raffle_id');
+    }
 }

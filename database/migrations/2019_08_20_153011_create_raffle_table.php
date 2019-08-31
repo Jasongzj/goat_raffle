@@ -22,8 +22,7 @@ class CreateRaffleTable extends Migration
             $table->timestamp('draw_time')->comment('开奖时间/截止抽奖时间');
             $table->unsignedInteger('draw_participants')->nullable()->comment('开奖要求人数');
             $table->text('desc')->nullable()->comment('抽奖描述');
-            $table->string('copy_title')->nullable()->comment('复制操作引导文案');
-            $table->string('copy_content')->nullable()->comment('复制操作 内容');
+            $table->text('context')->nullable()->comment('图文介绍');
             $table->unsignedTinyInteger('is_sharable')->default(0)->comment('是否可分享');
             $table->unsignedTinyInteger('award_type')->comment('发奖方式 1 中奖者填写地址 2 中奖者联系发起者');
             $table->unsignedBigInteger('contact_id')->nullable()->comment('中奖者联系方式');

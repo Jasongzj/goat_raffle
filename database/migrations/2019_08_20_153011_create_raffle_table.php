@@ -19,7 +19,7 @@ class CreateRaffleTable extends Migration
             $table->string('name')->nullable()->comment('活动标题');
             $table->string('img')->nullable()->comment('活动奖品第一张图');
             $table->unsignedTinyInteger('draw_type')->comment('开奖方式 1 时间 2 人数 3 即时开奖');
-            $table->timestamp('draw_time')->comment('开奖时间/截止抽奖时间');
+            $table->dateTime('draw_time')->comment('开奖时间/截止抽奖时间');
             $table->unsignedInteger('draw_participants')->nullable()->comment('开奖要求人数');
             $table->text('desc')->nullable()->comment('抽奖描述');
             $table->text('context')->nullable()->comment('图文介绍');

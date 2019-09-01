@@ -34,7 +34,7 @@ class UserRaffleController extends Controller
      */
     public function store(Raffle $raffle)
     {
-        if (Carbon::now() > $raffle->draw_time) {
+        if ($raffle->status == Raffle::STATUS_ENDED) {
             return $this->failed('活动已开奖，无法参与', 400);
         }
         $user = Auth::guard('api')->user();

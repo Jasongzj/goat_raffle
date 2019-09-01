@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\WechatService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
@@ -27,12 +28,10 @@ class Raffle extends Model
 
     const STATUS_NOT_END = 0;
     const STATUS_ENDED = 1;
-    const STATUS_EXPIRED = 2;
 
     public static $statusMap = [
         self::STATUS_NOT_END => '未开奖',
         self::STATUS_ENDED => '已开奖',
-        self::STATUS_EXPIRED => '已过期',
     ];
 
     protected $table = 'raffle';
@@ -46,6 +45,11 @@ class Raffle extends Model
     protected $casts = [
         'is_sharable' => 'boolean',
     ];
+
+    public function launcher()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     /**
      * 发奖者联系方式
@@ -68,5 +72,48 @@ class Raffle extends Model
     public function participants()
     {
         return $this->hasMany(UserRaffle::class, 'raffle_id');
+    }
+
+    public function winners()
+    {
+        return $this->hasMany(RaffleWinner::class);
+    }
+
+
+    /**
+     * 获取发送模版消息的标题
+     * @return string
+     */
+    public function getTemplateTitleAttribute()
+    {
+        if (count($this->awards) > 1) {
+            return $this->awards[0]->name;
+        } else {
+            return $this->awards[0]->name . ' 等';
+        }
+    }
+
+    /**
+     * 发送抽奖模版消息
+     * @param $openid
+     * @param $formId
+     * @param $notification
+     * @throws \EasyWeChat\Kernel\Exceptions\InvalidArgumentException
+     * @throws \EasyWeChat\Kernel\Exceptions\InvalidConfigException
+     */
+    public function sendWechatMessage($openid, $formId, $notification)
+    {
+        $msg = [
+            'touser' => $openid,
+            'template_id' => 'i4AYaMUfOGTLMDOwCLDnjsW4Je3moxua4VZtOvYV_NE',
+            'page' => '',
+            'form_id' => $formId,
+            'data' => [
+                'keyword1' => $this->template_title,
+                'keyword2' => $notification,
+            ],
+        ];
+        $wechatService = new WechatService();
+        $wechatService->getMiniProgram()->template_message->send($msg);
     }
 }

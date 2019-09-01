@@ -48,7 +48,7 @@ class Raffle extends Model
 
     public function launcher()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /**

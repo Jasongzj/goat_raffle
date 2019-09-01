@@ -80,17 +80,19 @@ class RaffleDraw implements ShouldQueue
      * @throws \EasyWeChat\Kernel\Exceptions\InvalidArgumentException
      * @throws \EasyWeChat\Kernel\Exceptions\InvalidConfigException
      */
-    protected function handleNoParticipant(Raffle $raffle)
+    public function handleNoParticipant(Raffle $raffle)
     {
         $raffle->status = Raffle::STATUS_ENDED;
         $raffle->save();
 
         // Redis 按过期时间排序，取最临近过期的值
-        $formId = \Redis::zrange('form_id_of'.$raffle->user_id, 0, 0);
+        $formId = $this->getFormId($raffle->user_id);
         if ($formId) {
             // 通知发起者活动未开奖
             $notification = '你发起的抽奖未开奖，因参与人数为0';
             $raffle->sendWechatMessage($raffle->launcher->openid, $formId, $notification);
+            // 删除使用的formId
+            \Redis::zRem('form_id_of_'.$raffle->user_id, $formId);
         }
     }
 
@@ -109,11 +111,28 @@ class RaffleDraw implements ShouldQueue
     {
         foreach ($raffle->participants as $participant) {
             // Redis 按过期时间排序，取最临近过期的值
-            $formId = \Redis::zrange('form_id_of'.$participant->id, 0, 0);
+            $formId = $this->getFormId($participant->id);
             if ($formId) {
                 $notification = $raffle->launcher->nick_name . ' 发起的活动正在开奖，快来看看你中奖了没有';
                 $raffle->sendWechatMessage($participant->openid, $formId, $notification);
+                // 删除使用的formId
+                \Redis::zRem('form_id_of_'.$participant->id, $formId);
             }
         }
+    }
+
+    /**
+     * 获取用户的formid
+     * @param $userId
+     * @return mixed
+     */
+    protected function getFormId($userId)
+    {
+        // 返回的是个 array
+        $formId = \Redis::zrange('form_id_of_'.$userId, 0, 1);
+        if ($formId) {
+            return $formId[0];
+        }
+        return '';
     }
 }

@@ -122,10 +122,10 @@ class RaffleDraw implements ShouldQueue
     {
         foreach ($raffle->participants as $participant) {
             // Redis 按过期时间排序，取最临近过期的值
-            $formId = $this->getFormId($participant->id);
+            $formId = $this->getFormId($participant->user_id);
             if ($formId) {
                 $notification = $raffle->launcher->nick_name . ' 发起的活动正在开奖，快来看看你中奖了没有';
-                $raffle->sendWechatMessage($participant->openid, $formId, $notification);
+                $raffle->sendWechatMessage($participant->user->openid, $formId, $notification);
                 // 删除使用的formId
                 \Redis::zRem('form_id_of_'.$participant->id, $formId);
             }

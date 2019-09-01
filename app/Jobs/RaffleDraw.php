@@ -50,21 +50,32 @@ class RaffleDraw implements ShouldQueue
                 $amount = (count($userIds) > $award->amount) ? $award->amount : count($userIds);
                 $awardUserKeys = array_rand($userIds, $amount);
 
-                foreach ($awardUserKeys as $key) {
+                if ($amount == 1) {
                     $winners[] = [
                         'raffle_id' => $raffle->id,
                         'award_id' => $award->id,
-                        'user_id' => $userIds[$key],
+                        'user_id' => $userIds[$awardUserKeys],
                     ];
-                    // 剔除已中奖用户
-                    unset($userIds[$key]);
+                    unset($awardUserKeys);
+                } else {
+                    foreach ($awardUserKeys as $key) {
+                        $winners[] = [
+                            'raffle_id' => $raffle->id,
+                            'award_id' => $award->id,
+                            'user_id' => $userIds[$key],
+                        ];
+                        // 剔除已中奖用户
+                        unset($userIds[$key]);
+                    }
                 }
+
+
 
                 // 修改开奖状态
                 $raffle->status = Raffle::STATUS_ENDED;
                 $raffle->save();
                 // 记录中奖者
-                RaffleWinner::query()->create($winners);
+                $raffle->winners()->createMany($winners);
                 // 恢复索引数组
                 $userIds = array_values($userIds);
             }

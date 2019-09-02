@@ -31,16 +31,6 @@ class RaffleStoreRequest extends Request
                     return $fail('开奖人数不能为空');
                 }
             },
-            'copy_title' => function ($attribute, $value, $fail) {
-                if ($this->request->get('copy_content') && !$value) {
-                    return $fail('请输入引导文案');
-                }
-            },
-            'copy_content' => function ($attribute, $value, $fail) {
-                if ($this->request->get('copy_title') && !$value) {
-                    return $fail('请输入要复制的内容');
-                }
-            },
             'award_type' => function ($attribute, $value, $fail) {
                 if (!$value) {
                     return $fail('请选择发奖方式');
@@ -50,9 +40,6 @@ class RaffleStoreRequest extends Request
                 }
             },
             'contact_id' => function ($attribute, $value, $fail) {
-                if ($this->request->get('award_type') == Raffle::CONTACT_INITIATOR_BY_WINNER && !$value) {
-                    return $fail('请选择联系方式');
-                }
                 if (!UserContact::query()->where('id', $value)->exists()) {
                     return $fail('选择的联系方式不存在');
                 }

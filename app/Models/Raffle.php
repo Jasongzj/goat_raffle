@@ -38,7 +38,7 @@ class Raffle extends Model
 
     protected $fillable = [
         'name', 'draw_type', 'draw_time', 'draw_participants',
-        'desc', 'context', 'is_sharable', 'contact_id',
+        'desc', 'context', 'context_img', 'is_sharable', 'contact_id',
         'award_type',
     ];
 
@@ -91,6 +91,16 @@ class Raffle extends Model
         } else {
             return $this->awards[0]->name . ' 等';
         }
+    }
+
+    public function setContextImgAttribute($value)
+    {
+        $this->attributes['context_img'] = join(',', $value);
+    }
+
+    public function getContextImgAttribute($value)
+    {
+        return explode(',', $value);
     }
 
     /**

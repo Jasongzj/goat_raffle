@@ -72,7 +72,7 @@ class RaffleController extends Controller
     {
         $attributes = $request->only([
             'draw_type', 'draw_time', 'draw_participants', 'desc',
-            'context', 'award_type', 'contact_id',
+            'context', 'context_img', 'award_type', 'contact_id',
         ]);
         $awards = $request->input('awards');
 

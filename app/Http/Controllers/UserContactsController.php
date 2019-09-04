@@ -16,7 +16,7 @@ class UserContactsController extends Controller
         $user = Auth::guard('api')->user();
         $list = UserContact::query()
             ->where('user_id', $user->id)
-            ->select(['id', 'type', 'subs_type', 'title', 'content'])
+            ->select(['id', 'type', 'subs_type', 'title', 'content', 'img'])
             ->paginate($pageSize);
 
         return UserContactResource::collection($list)->additional(JsonResponse::$resourceAdditionalMeta );

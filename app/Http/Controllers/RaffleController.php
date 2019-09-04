@@ -22,10 +22,10 @@ class RaffleController extends Controller
         $list = Raffle::query()
             ->where('status', Raffle::STATUS_NOT_END)
             ->select([
-                'id', 'name', 'draw_time', 'img'
+                'id', 'name', 'draw_time', 'img',
             ])
+            ->where('sort', 0)
             ->orderByDesc('draw_time')
-            ->offset(3)
             ->paginate();
         return RaffleResource::collection($list);
     }
@@ -41,10 +41,11 @@ class RaffleController extends Controller
             ->select([
                 'id', 'name', 'draw_time', 'img'
             ])
+            ->where('sort', '>', 0)
             ->orderByDesc('sort')
             ->orderByDesc('draw_time')
-            ->limit(3)
             ->get();
+
         return RaffleResource::collection($list);
     }
 
@@ -57,7 +58,7 @@ class RaffleController extends Controller
         $raffle->load('userContact');
         if ($raffle->current_participants) {
             $raffle->load(['participants', function($query) {
-
+                $query->limit(10);
             }]);
         }
         return $this->success($raffle);

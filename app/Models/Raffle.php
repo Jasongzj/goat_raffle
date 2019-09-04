@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Services\WechatService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class Raffle extends Model
 {
@@ -34,16 +35,22 @@ class Raffle extends Model
         self::STATUS_ENDED => '已开奖',
     ];
 
+    public $participatedRaffleIds;
+
     protected $table = 'raffle';
 
     protected $fillable = [
-        'name', 'draw_type', 'draw_time', 'draw_participants',
+        'name', 'img', 'draw_type', 'draw_time', 'draw_participants',
         'desc', 'context', 'context_img', 'is_sharable', 'contact_id',
         'award_type',
     ];
 
     protected $casts = [
         'is_sharable' => 'boolean',
+    ];
+
+    protected $appends = [
+        'has_participated'
     ];
 
     public function launcher()
@@ -93,6 +100,7 @@ class Raffle extends Model
         }
     }
 
+
     public function setContextImgAttribute($value)
     {
         $this->attributes['context_img'] = join(',', $value);
@@ -101,6 +109,24 @@ class Raffle extends Model
     public function getContextImgAttribute($value)
     {
         return explode(',', $value);
+    }
+
+    /**
+     * 获取用户是否参与该抽奖
+     * @return bool
+     */
+    public function getHasParticipatedAttribute()
+    {
+        if (!$this->participatedRaffleIds) {
+            $user = Auth::guard('api')->user();
+            $participatedRaffleIds = UserRaffle::query()
+                ->where('user_id', $user->id)
+                ->get(['raffle_id'])
+                ->pluck('raffle_id')
+                ->all();
+            $this->participatedRaffleIds = $participatedRaffleIds;
+        }
+        return in_array($this->attributes['id'], $this->participatedRaffleIds) ? true : false;
     }
 
     /**

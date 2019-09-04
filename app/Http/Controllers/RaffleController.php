@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Traits\JsonResponse;
 use App\Http\Requests\AwardPicture;
 use App\Http\Requests\ContextPicture;
 use App\Http\Requests\RaffleStoreRequest;
@@ -27,7 +28,7 @@ class RaffleController extends Controller
             ->where('sort', 0)
             ->orderByDesc('draw_time')
             ->paginate();
-        return RaffleResource::collection($list);
+        return RaffleResource::collection($list)->additional(JsonResponse::$resourceAdditionalMeta);
     }
 
     /**
@@ -46,7 +47,7 @@ class RaffleController extends Controller
             ->orderByDesc('draw_time')
             ->get();
 
-        return RaffleResource::collection($list);
+        return RaffleResource::collection($list)->additional(JsonResponse::$resourceAdditionalMeta);
     }
 
     /**

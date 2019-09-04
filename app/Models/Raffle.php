@@ -50,7 +50,7 @@ class Raffle extends Model
     ];
 
     protected $appends = [
-        'has_participated'
+        'has_participated', 'parsed_draw_time',
     ];
 
     public function launcher()
@@ -109,6 +109,11 @@ class Raffle extends Model
     public function getContextImgAttribute($value)
     {
         return explode(',', $value);
+    }
+
+    public function getParsedDrawTimeAttribute()
+    {
+        return Carbon::parse($this->draw_time)->format('Y年m月d日 H:i');
     }
 
     /**

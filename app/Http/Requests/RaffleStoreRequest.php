@@ -46,4 +46,12 @@ class RaffleStoreRequest extends Request
             }
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'awards.*.name.required' => '请输入奖项名称',
+            'awards.*.amount.required' => '请输入奖项数量',
+        ];
+    }
 }

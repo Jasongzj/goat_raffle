@@ -37,8 +37,11 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::delete('users/contacts/{contact}', 'UserContactsController@destroy');
 
     Route::post('store_form', 'AuthController@storeFormId'); // 记录用户的form_id
+
+    Route::get('user_stat', 'UserStatsController@my');
 });
 
+Route::get('test','AuthController@test');
 // 当前抽奖列表
 
 // 编辑抽奖信息

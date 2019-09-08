@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('wx_auth', 'AuthController@wxAuth');   // 微信授权登录
+Route::any('mp_server', 'WechatController@miniProgramServer');   // 小程序服务器消息处理
 
 
 Route::group(['middleware' => 'auth:api'], function () {

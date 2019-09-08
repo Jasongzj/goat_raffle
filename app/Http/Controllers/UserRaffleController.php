@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Traits\JsonResponse;
 use App\Http\Resources\UserRaffleResource;
 use App\Models\Raffle;
 use App\Models\UserRaffle;
@@ -24,7 +25,7 @@ class UserRaffleController extends Controller
             ->select(['raffle.id', 'raffle.name', 'raffle.draw_time', 'raffle.img'])
             ->orderBy('user_raffle.id')
             ->paginate(5);
-        return UserRaffleResource::collection($list);
+        return UserRaffleResource::collection($list)->additional(JsonResponse::$resourceAdditionalMeta);
     }
 
     /**

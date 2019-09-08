@@ -151,6 +151,6 @@ class RaffleController extends Controller
             ])
             ->orderByDesc('id')
             ->get();
-        return RaffleResource::collection($list);
+        return RaffleResource::collection($list)->additional(JsonResponse::$resourceAdditionalMeta);
     }
 }

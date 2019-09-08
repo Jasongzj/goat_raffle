@@ -27,6 +27,7 @@ Route::group(['middleware' => 'auth:api'], function () {
 
     Route::get('raffle/launch', 'RaffleController@launchedRaffle'); // 我发起的抽奖
     Route::get('raffle/participate', 'UserRaffleController@participatedRaffle');  // 我参与的抽奖
+    Route::get('raffle/award', 'RaffleWinnersController@myAwards');  // 我的中奖记录
     Route::post('raffle/participate/{raffle}', 'UserRaffleController@store');   // 参与抽奖
 
 
@@ -38,21 +39,15 @@ Route::group(['middleware' => 'auth:api'], function () {
 
     Route::post('store_form', 'AuthController@storeFormId'); // 记录用户的form_id
 
-    Route::get('user_stat', 'UserStatsController@my');
+    Route::get('user_stat', 'UserStatsController@my'); // 我的统计
 });
 
 Route::get('test','AuthController@test');
-// 当前抽奖列表
 
 // 编辑抽奖信息
 
 // 用户信息授权
 
-// 我的全部抽奖列表
-
-// 我发起的抽奖
-
-// 我的中奖记录
 
 // 参与抽奖
 

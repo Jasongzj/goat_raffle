@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Raffle;
 use App\Models\RaffleWinner;
+use App\Models\UserStat;
 use App\Services\WechatService;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
@@ -69,13 +70,17 @@ class RaffleDraw implements ShouldQueue
                     }
                 }
 
-
-
                 // 修改开奖状态
                 $raffle->status = Raffle::STATUS_ENDED;
                 $raffle->save();
                 // 记录中奖者
                 $raffle->winners()->createMany($winners);
+                // 中奖者的中奖记录统计 + 1
+                $winnerUserIds = array_column($winners, 'user_id');
+                UserStat::query()
+                    ->whereIn('user_id', $winnerUserIds)
+                    ->increment('award_amount');
+
                 // 恢复索引数组
                 $userIds = array_values($userIds);
             }

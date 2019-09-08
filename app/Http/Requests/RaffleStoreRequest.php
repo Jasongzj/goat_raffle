@@ -21,11 +21,7 @@ class RaffleStoreRequest extends Request
                     return $fail('开奖方式不合法');
                 }
             },
-            'draw_time' => function ($attribute, $value, $fail) {
-                if ($this->request->get('draw_type') != Raffle::DRAW_BASE_ON_PARTICIPANTS && !$value) {
-                    return $fail('请设置开奖/截止时间');
-                }
-            },
+            'draw_time' => 'required',
             'draw_participants' => function ($attribute, $value, $fail) {
                 if ($this->request->get('draw_type') != Raffle::DRAW_BASE_ON_TIME && !$value) {
                     return $fail('开奖人数不能为空');
@@ -52,6 +48,7 @@ class RaffleStoreRequest extends Request
         return [
             'awards.*.name.required' => '请输入奖项名称',
             'awards.*.amount.required' => '请输入奖项数量',
+            'draw_time.required' => '请设置开奖时间',
         ];
     }
 }

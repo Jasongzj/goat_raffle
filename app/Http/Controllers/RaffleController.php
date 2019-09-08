@@ -56,6 +56,7 @@ class RaffleController extends Controller
     /**
      * 抽奖详情
      * @param Raffle $raffle
+     * @return mixed
      */
     public function show(Raffle $raffle)
     {

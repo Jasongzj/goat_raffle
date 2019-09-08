@@ -9,4 +9,9 @@ class RaffleAward extends Model
     protected $fillable = [
         'name', 'img', 'amount', 'index',
     ];
+
+    public function winners()
+    {
+        return $this->hasMany(RaffleWinner::class, 'award_id');
+    }
 }

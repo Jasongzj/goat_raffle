@@ -103,12 +103,17 @@ class Raffle extends Model
 
     public function setContextImgAttribute($value)
     {
-        $this->attributes['context_img'] = join(',', $value);
+        if ($value) {
+            $this->attributes['context_img'] = join(',', $value);
+        }
     }
 
     public function getContextImgAttribute($value)
     {
-        return explode(',', $value);
+        if ($value) {
+            return explode(',', $value);
+        }
+        return [];
     }
 
     public function getParsedDrawTimeAttribute()

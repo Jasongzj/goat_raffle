@@ -9,6 +9,8 @@ use App\Http\Requests\RaffleStoreRequest;
 use App\Http\Requests\SubscriptionPicture;
 use App\Http\Resources\RaffleResource;
 use App\Models\Raffle;
+use App\Models\RaffleAward;
+use App\Models\UserRaffle;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -56,11 +58,42 @@ class RaffleController extends Controller
      */
     public function show(Raffle $raffle)
     {
-        $raffle->load('userContact');
+        $raffle->load([
+            'userContact:id,user_id,type,subs_type,title,content',
+            'awards:id,raffle_id,name,img,amount'
+        ]);
+        // 获取参与人员列表
         if ($raffle->current_participants) {
-            $raffle->load(['participants', function($query) {
-                $query->limit(10);
-            }]);
+            $participants = UserRaffle::query()->where('user_raffle.raffle_id', $raffle->id)
+                ->join('users', 'user_raffle.user_id', '=', 'users.id')
+                ->select(['users.id', 'users.avatar_url'])
+                ->limit(10)
+                ->get();
+            $raffle->participants_list = $participants;
+        }
+        // 获取中奖名单
+        if ($raffle->status == Raffle::STATUS_ENDED) {
+            $awardIds = $raffle->awards->pluck('id')->all();
+            $winnerList = DB::table('raffle_winners as winners')
+                ->whereIn('winners.award_id', $awardIds)
+                ->join('users', 'winners.user_id', '=', 'users.id')
+                ->select(['winners.award_id', 'users.avatar_url', 'users.nick_name'])
+                ->get();
+
+            foreach ($raffle->awards as $key => $award) {
+                $winners[] = [
+                    'award_name' => $award->name,
+                    'award_amount' => $award->amount,
+                ];
+                foreach ($winnerList as $winner) {
+                    if ($winner['award_id'] == $award->id) {
+                        $winners[$key]['users'][] = [
+                            'nick_name' => $winnerList->nick_name,
+                            'avatar_url' => $winnerList->avatar_url,
+                        ];
+                    }
+                }
+            }
         }
         return $this->success($raffle);
     }

@@ -2,11 +2,19 @@
 
 namespace App\Exceptions;
 
+use App\Http\Controllers\Traits\JsonResponse;
 use Exception;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
+use Illuminate\Http\Response;
+use Illuminate\Validation\ValidationException;
+use Overtrue\Socialite\AuthorizeFailedException;
 
 class Handler extends ExceptionHandler
 {
+    use JsonResponse;
     /**
      * A list of the exception types that are not reported.
      *
@@ -46,6 +54,27 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        switch (true) {
+            case $exception instanceof ValidationException:
+                return $this->failed(
+                    collect($exception->errors())->first()[0],
+                    Response::HTTP_UNPROCESSABLE_ENTITY,
+                    Response::HTTP_UNPROCESSABLE_ENTITY
+                );
+                break;
+            case $exception instanceof AuthenticationException:
+                return $this->unauthorized('登录认证失败');
+                break;
+            case $exception instanceof AuthorizeFailedException:
+                return $this->unauthorized($exception->getMessage(), $exception->getCode());
+                break;
+            case $exception instanceof ModelNotFoundException:
+                return $this->notFound('请求对象不存在');
+                break;
+            case $exception instanceof ThrottleRequestsException:
+                return $this->failed($exception->getMessage(), $exception->getCode(), $exception->getStatusCode());
+                break;
+        }
         return parent::render($request, $exception);
     }
 }

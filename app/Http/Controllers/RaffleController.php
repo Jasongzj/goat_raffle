@@ -10,6 +10,7 @@ use App\Http\Requests\SubscriptionPicture;
 use App\Http\Resources\RaffleResource;
 use App\Models\Raffle;
 use App\Models\RaffleAward;
+use App\Models\RaffleWinner;
 use App\Models\UserRaffle;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -74,26 +75,26 @@ class RaffleController extends Controller
         // 获取中奖名单
         if ($raffle->status == Raffle::STATUS_ENDED) {
             $awardIds = $raffle->awards->pluck('id')->all();
-            $winnerList = DB::table('raffle_winners as winners')
-                ->whereIn('winners.award_id', $awardIds)
-                ->join('users', 'winners.user_id', '=', 'users.id')
-                ->select(['winners.award_id', 'users.avatar_url', 'users.nick_name'])
+            $winnerList = RaffleWinner::query()
+                ->whereIn('award_id', $awardIds)
+                ->with('users:id,avatar_url,nick_name')
+                ->select(['raffle_winners.award_id', 'raffle_winners.user_id'])
+                ->orderBy('award_id')
                 ->get();
-
-            foreach ($raffle->awards as $key => $award) {
-                $winners[] = [
-                    'award_name' => $award->name,
-                    'award_amount' => $award->amount,
-                ];
-                foreach ($winnerList as $winner) {
-                    if ($winner['award_id'] == $award->id) {
-                        $winners[$key]['users'][] = [
-                            'nick_name' => $winnerList->nick_name,
-                            'avatar_url' => $winnerList->avatar_url,
+            $winners = [];
+            foreach ($winnerList as $winner) {
+                foreach ($raffle->awards as $award) {
+                    if ($winner->award_id == $award->id) {
+                        $winners[] = [
+                            'award_name' => $award->name,
+                            'award_amount' => $award->amount,
+                            'users' => $winner->users,
                         ];
                     }
                 }
             }
+            $raffle->winner_list = $winners;
+
         }
         return $this->success($raffle);
     }

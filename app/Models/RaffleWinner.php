@@ -10,8 +10,8 @@ class RaffleWinner extends Model
         'raffle_id', 'award_id', 'user_id',
     ];
 
-    public function user()
+    public function users()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

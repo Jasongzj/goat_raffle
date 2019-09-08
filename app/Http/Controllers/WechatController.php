@@ -9,11 +9,12 @@ class WechatController extends Controller
 {
     public function miniProgramServer(WechatService $wechatService)
     {
-        $response = $wechatService->getMiniProgram()->server->push(function ($message) {
+        $app = $wechatService->getMiniProgram();
+        $app->server->push(function ($message) {
             return '消息已收到';
 
         });
 
-        return $response;
+        return $app->server->serve();
     }
 }

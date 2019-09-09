@@ -113,7 +113,7 @@ class RaffleController extends Controller
         ]);
         $awards = $request->input('awards');
 
-        DB::transaction(function () use ($attributes, $awards) {
+        $raffle = DB::transaction(function () use ($attributes, $awards) {
             // 根据奖项生成抽奖标题
             $attributes['name'] = '奖品：';
             foreach ($awards as $award) {
@@ -131,9 +131,11 @@ class RaffleController extends Controller
 
             // 用户发起抽奖记录+1
             $user->stat()->increment('launched_raffle_amount', 1);
+
+            return $raffle;
         });
 
-        return $this->message('发起抽奖成功');
+        return $this->success(['id' => $raffle->id]);
     }
 
     /**

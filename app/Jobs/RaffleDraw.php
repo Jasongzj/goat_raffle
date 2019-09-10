@@ -3,9 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Raffle;
-use App\Models\RaffleWinner;
 use App\Models\UserStat;
-use App\Services\WechatService;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;

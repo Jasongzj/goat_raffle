@@ -61,11 +61,19 @@ class MiniProgramHandler implements EventHandlerInterface
             if (!$contact || $contact->type != UserContact::TYPE_SUBS || !$contact->img) {
                 return ;
             }
-
+            // 保存素材到本地
+            $filename = bin2hex(random_bytes(8)) . '.jpg';
+            $path = 'tmp_contacts/' . $filename;
+            $disk = Storage::disk('public');
+            $disk->put($path, file_get_contents($contact->img));
+            $realPath = storage_path('app/public/' . $path);
             // 上传临时素材
-            $mediaId = $miniProgram->media->uploadImage($contact->img);
+            $response = $miniProgram->media->uploadImage($realPath);
+            $mediaId = $response['media_id'];
             // 缓存临时素材 media_id , 3天有效
             Cache::put('user_contact_img:'.$contactId, $mediaId, Carbon::now()->addDays(3));
+
+            $disk->delete($path);
         }
         // 发送临时素材
         $miniProgram->customer_service->message(new Image($mediaId))->to($openid)->send();

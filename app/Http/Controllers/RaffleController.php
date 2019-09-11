@@ -70,6 +70,7 @@ class RaffleController extends Controller
             $participants = UserRaffle::query()->where('user_raffle.raffle_id', $raffle->id)
                 ->join('users', 'user_raffle.user_id', '=', 'users.id')
                 ->select(['users.id', 'users.avatar_url'])
+                ->orderByDesc('user_raffle.id')
                 ->limit(10)
                 ->get();
         }

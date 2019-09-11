@@ -48,7 +48,7 @@ class UserRaffleController extends Controller
             return $this->failed('你已参与该抽奖，请勿重复参加', 400);
         }
 
-        DB::transaction(function () use ($raffle, $user) {
+        $raffle = DB::transaction(function () use ($raffle, $user) {
 
             $userRaffle = new UserRaffle([
                 'user_id' => $user->id,
@@ -62,8 +62,24 @@ class UserRaffleController extends Controller
 
             // 我参与的抽奖记录+1
             $user->stat()->increment('participated_raffle_amount', 1);
+
+            return $raffle;
         });
 
-        return $this->message('参与成功');
+        $participants_list = UserRaffle::query()->where('user_raffle.raffle_id', $raffle->id)
+            ->join('users', 'user_raffle.user_id', '=', 'users.id')
+            ->select(['users.id', 'users.avatar_url'])
+            ->orderByDesc('user_raffle.id')
+            ->limit(10)
+            ->get();
+
+        $data = [
+            'current_participants' => $raffle->current_participants,
+            'participants_list' => $participants_list,
+        ];
+
+        return $this->success($data);
     }
+
+    // TODO 参与抽奖用户明细
 }

@@ -65,15 +65,17 @@ class RaffleController extends Controller
             'awards:id,raffle_id,name,img,amount'
         ]);
         // 获取参与人员列表
+        $participants = [];
         if ($raffle->current_participants) {
             $participants = UserRaffle::query()->where('user_raffle.raffle_id', $raffle->id)
                 ->join('users', 'user_raffle.user_id', '=', 'users.id')
                 ->select(['users.id', 'users.avatar_url'])
                 ->limit(10)
                 ->get();
-            $raffle->participants_list = $participants;
         }
+        $raffle->participants_list = $participants;
         // 获取中奖名单
+        $winners = [];
         if ($raffle->status == Raffle::STATUS_ENDED) {
             $awardIds = $raffle->awards->pluck('id')->all();
             $winnerList = RaffleWinner::query()
@@ -95,8 +97,8 @@ class RaffleController extends Controller
                 }
             }
             $raffle->winner_list = $winners;
-
         }
+        $raffle->winner_list = $winners;
         return $this->success($raffle);
     }
 

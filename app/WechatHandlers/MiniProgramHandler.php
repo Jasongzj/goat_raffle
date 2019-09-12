@@ -8,16 +8,13 @@
 
 namespace App\WechatHandlers;
 
-
-use App\Models\Raffle;
 use App\Models\UserContact;
 use App\Services\WechatService;
 use Carbon\Carbon;
 use EasyWeChat\Kernel\Contracts\EventHandlerInterface;
 use EasyWeChat\Kernel\Messages\Image;
-use EasyWeChat\Kernel\Messages\Text;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Storage;
+use Intervention\Image\ImageManagerStatic as ImageMaker;
 
 class MiniProgramHandler implements EventHandlerInterface
 {
@@ -64,16 +61,26 @@ class MiniProgramHandler implements EventHandlerInterface
             // 保存素材到本地
             $filename = bin2hex(random_bytes(8)) . '.jpg';
             $path = 'tmp_contacts/' . $filename;
-            $disk = Storage::disk('public');
-            $disk->put($path, file_get_contents($contact->img));
-            $realPath = storage_path('app/public/' . $path);
+            $codePath = storage_path('app/public/' . $path);
+            // 修改二维码尺寸
+            ImageMaker::make($contact->img)->resize(315, 315)->save($codePath);
+
+            // 合成提示扫码图片
+            $filename = bin2hex(random_bytes(8)) . '.jpg';
+            $path = 'tmp_contacts/' . $filename;
+            $scanPicPath = storage_path('app/public/' . $path);
+            $bg = ImageMaker::make(storage_path('app/public/tmp_contacts/scan_tip.jpg'));
+            $bg->insert($codePath)->save($scanPicPath);
+
             // 上传临时素材
-            $response = $miniProgram->media->uploadImage($realPath);
+            $response = $miniProgram->media->uploadImage($scanPicPath);
             $mediaId = $response['media_id'];
             // 缓存临时素材 media_id , 3天有效
             Cache::put('user_contact_img:'.$contactId, $mediaId, Carbon::now()->addDays(3));
 
-            $disk->delete($path);
+            // 删除二维码素材和合成的素材
+            unlink($codePath);
+            unlink($scanPicPath);
         }
         // 发送临时素材
         $miniProgram->customer_service->message(new Image($mediaId))->to($openid)->send();

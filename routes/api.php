@@ -41,6 +41,8 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::post('store_form', 'AuthController@storeFormId'); // 记录用户的form_id
 
     Route::get('user_stat', 'UserStatsController@my'); // 我的统计
+
+    Route::post('users/info', 'UsersController@updateInfo'); // 更新用户数据
 });
 
 Route::get('test','AuthController@test');

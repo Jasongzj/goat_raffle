@@ -70,7 +70,7 @@ class MiniProgramHandler implements EventHandlerInterface
             $path = 'tmp_contacts/' . $filename;
             $scanPicPath = storage_path('app/public/' . $path);
             $bg = ImageMaker::make(storage_path('app/public/tmp_contacts/scan_tip.jpg'));
-            $bg->insert($codePath)->save($scanPicPath);
+            $bg->insert($codePath, 'top-left', 92, 56)->save($scanPicPath);
 
             // 上传临时素材
             $response = $miniProgram->media->uploadImage($scanPicPath);

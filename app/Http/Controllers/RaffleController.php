@@ -71,7 +71,7 @@ class RaffleController extends Controller
                 ->join('users', 'user_raffle.user_id', '=', 'users.id')
                 ->select(['users.id', 'users.avatar_url'])
                 ->orderByDesc('user_raffle.id')
-                ->limit(10)
+                ->limit(7)
                 ->get();
         }
         $raffle->participants_list = $participants;

@@ -43,6 +43,7 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::get('user_stat', 'UserStatsController@my'); // 我的统计
 
     Route::post('users/info', 'UsersController@updateInfo'); // 更新用户数据
+    Route::get('users/my', 'UsersController@my'); // 我的基本信息
 });
 
 Route::get('test','AuthController@test');

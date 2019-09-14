@@ -36,4 +36,14 @@ class UsersController extends Controller
         $user->update($info);
         return $this->success('更新成功');
     }
+
+    /**
+     * 我的基本信息
+     * @return mixed
+     */
+    public function my()
+    {
+        $user = Auth::guard('api')->user();
+        return $this->success($user);
+    }
 }

@@ -2,16 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Raffle;
-use App\Models\RaffleWinner;
 use App\Models\User;
 use App\Services\WechatService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
-use phpDocumentor\Reflection\Types\Context;
 
 class AuthController extends Controller
 {

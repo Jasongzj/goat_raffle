@@ -28,6 +28,10 @@ class User extends Authenticatable implements JWTSubject
         'gender', 'city', 'province', 'country',
     ];
 
+    protected $hidden = [
+        'openid', 'unionid',
+    ];
+
     /**
      * 用户发起的抽奖
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

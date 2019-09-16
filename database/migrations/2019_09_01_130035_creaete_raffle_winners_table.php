@@ -18,6 +18,8 @@ class CreaeteRaffleWinnersTable extends Migration
             $table->unsignedBigInteger('raffle_id');
             $table->unsignedBigInteger('award_id');
             $table->unsignedBigInteger('user_id');
+            $table->text('address')->default('')->comment('中奖发货地址');
+            $table->string('message')->default('')->comment('用户留言');
             $table->timestamps();
         });
     }

@@ -24,4 +24,28 @@ class RaffleWinnersController extends Controller
             ->paginate(5);
         return Resource::collection($list)->additional($list);
     }
+
+    /**
+     * 填写中奖收货地址
+     * @param Request $request
+     * @return mixed
+     */
+    public function fillInAddress(Request $request)
+    {
+        $attributes = $request->only(['address', 'message']);
+        $user = Auth::guard('api')->user();
+        $winner = RaffleWinner::query()
+            ->where('raffle_id', $request->input('rid'))
+            ->where('user_id', $user->id)
+            ->first();
+        if (!$winner) {
+            return $this->failed('查无你的中奖记录', 400);
+        }
+        if ($winner->address) {
+            return $this->failed('中奖地址无法修改', 400);
+        }
+        $winner->update($attributes);
+
+        return $this->message('登记成功');
+    }
 }

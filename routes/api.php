@@ -31,6 +31,8 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::get('raffle/award', 'RaffleWinnersController@myAwards');  // 我的中奖记录
     Route::post('raffle/participate/{raffle}', 'UserRaffleController@store');   // 参与抽奖
 
+    Route::post('raffle/fill_in_address', 'RaffleWinnersController@fillInAddress'); // 填写中奖收货地址
+
 
     // 用户联系方式
     Route::get('users/contacts', 'UserContactsController@index');

@@ -100,20 +100,22 @@ class RaffleDraw implements ShouldQueue
         $raffle->save();
 
         // Redis 按过期时间排序，取最临近过期的值
-        $formId = $this->getFormId($raffle->user_id);
-        logger('用户'.$raffle->user_id . '本次form_id：' . $formId);
-        if ($formId) {
-            // 通知发起者活动未开奖
-            $notification = '你发起的抽奖未开奖，因参与人数为0';
-            $raffle->sendWechatMessage($raffle->launcher->openid, $formId, $notification);
-            // 删除使用的formId
-            \Redis::zRem('form_id_of_'.$raffle->user_id, $formId);
+        for ($i = 0; $i < 10; $i++) {
+            $formId = $this->getFormId($raffle->user_id);
+            logger('用户'.$raffle->user_id . '本次form_id：' . $formId);
+            if ($formId) {
+                // 通知发起者活动未开奖
+                $notification = '你发起的抽奖未开奖，因参与人数为0';
+                $result = $raffle->sendWechatMessage($raffle->launcher->openid, $formId, $notification);
+                // 删除使用的formId
+                \Redis::zRem('form_id_of_'.$raffle->user_id, $formId);
+
+                // 发送成功则不继续发送
+                if ($result) {
+                    break;
+                }
+            }
         }
-    }
-
-    protected function drawRaffle()
-    {
-
     }
 
     /**
@@ -126,14 +128,21 @@ class RaffleDraw implements ShouldQueue
     {
         foreach ($raffle->participants as $participant) {
             // Redis 按过期时间排序，取最临近过期的值
-            $formId = $this->getFormId($participant->user_id);
-            logger('用户'. $participant->user_id . '本次form_id：' . $formId);
-            if ($formId) {
-                $notification = $raffle->launcher->nick_name . ' 发起的活动正在开奖，快来看看你中奖了没有';
-                $raffle->sendWechatMessage($participant->user->openid, $formId, $notification);
-                // 删除使用的formId
-                \Redis::zRem('form_id_of_'.$participant->id, $formId);
+            for ($i = 0; $i < 10; $i++) {
+                $formId = $this->getFormId($participant->user_id);
+                logger('用户'. $participant->user_id . '本次form_id：' . $formId);
+                if ($formId) {
+                    $notification = $raffle->launcher->nick_name . ' 发起的活动正在开奖，快来看看你中奖了没有';
+                    $result = $raffle->sendWechatMessage($participant->user->openid, $formId, $notification);
+                    // 删除使用的formId
+                    \Redis::zRem('form_id_of_'.$participant->id, $formId);
+
+                    if ($result) {
+                        break;
+                    }
+                }
             }
+
         }
     }
 

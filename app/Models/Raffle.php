@@ -144,6 +144,7 @@ class Raffle extends Model
      * @param $openid
      * @param $formId
      * @param $notification
+     * @return bool
      * @throws \EasyWeChat\Kernel\Exceptions\InvalidArgumentException
      * @throws \EasyWeChat\Kernel\Exceptions\InvalidConfigException
      */
@@ -160,6 +161,10 @@ class Raffle extends Model
             ],
         ];
         $wechatService = new WechatService();
-        $wechatService->getMiniProgram()->template_message->send($msg);
+        $response = $wechatService->getMiniProgram()->template_message->send($msg);
+        if ($response['errcode']) {
+            return false;
+        }
+        return true;
     }
 }

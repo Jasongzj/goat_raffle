@@ -22,6 +22,7 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::get('raffle/top', 'RaffleController@top');  // 置顶的抽奖
     Route::get('raffle/{raffle}', 'RaffleController@show')->where('raffle', '[0-9]+'); // 抽奖详情
     Route::post('raffle', 'RaffleController@store');    // 发起抽奖
+    Route::put('raffle/{raffle}', 'RaffleController@update'); // 编辑抽奖
     Route::post('raffle/upload_award', 'RaffleController@uploadAwardPic'); // 上传奖品图
     Route::post('raffle/upload_context', 'RaffleController@uploadContext'); // 上传奖品图
     Route::post('raffle/upload_subs', 'RaffleController@uploadSubscription'); // 上传奖品图

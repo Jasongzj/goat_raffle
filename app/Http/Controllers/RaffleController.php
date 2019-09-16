@@ -6,6 +6,7 @@ use App\Http\Controllers\Traits\JsonResponse;
 use App\Http\Requests\AwardPicture;
 use App\Http\Requests\ContextPicture;
 use App\Http\Requests\RaffleStoreRequest;
+use App\Http\Requests\RaffleUpdateRequest;
 use App\Http\Requests\SubscriptionPicture;
 use App\Http\Resources\RaffleResource;
 use App\Models\Raffle;
@@ -135,6 +136,51 @@ class RaffleController extends Controller
 
             // 用户发起抽奖记录+1
             $user->stat()->increment('launched_raffle_amount', 1);
+
+            return $raffle;
+        });
+
+        return $this->success(['id' => $raffle->id]);
+    }
+
+    /**
+     * 编辑抽奖内容
+     * @param RaffleUpdateRequest $request
+     * @param Raffle $raffle
+     * @return mixed
+     */
+    public function update(RaffleUpdateRequest $request, Raffle $raffle)
+    {
+        if ($raffle->current_participants > 0) {
+            return $this->failed('已有用户参与，无法修改', 400);
+        }
+
+        $user = Auth::guard('api')->user();
+        if ($raffle->user_id != $user->id) {
+            return $this->failed('这不是你发起的抽奖！', 400);
+        }
+
+        $attributes = $request->only([
+            'draw_type', 'draw_time', 'draw_participants', 'desc',
+            'context', 'context_img', 'award_type', 'contact_id',
+            'is_sharable'
+        ]);
+        $awards = $request->input('awards');
+
+        $raffle = DB::transaction(function () use ($attributes, $awards, $raffle) {
+            // 根据奖项生成抽奖标题
+            $attributes['name'] = '奖品：';
+            foreach ($awards as $award) {
+                $attributes['name'] .= $award['name'] . ' x ' . $award['amount'];
+                if (empty($attributes['img']) && !empty($award['img'])) {
+                    $attributes['img'] = $award['img'];
+                }
+            }
+
+            $raffle->update($attributes);
+            // 更新奖项
+            $raffle->awards()->delete();
+            $raffle->awards()->createMany($awards);
 
             return $raffle;
         });

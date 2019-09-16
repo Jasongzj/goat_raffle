@@ -2,12 +2,12 @@
 
 namespace App\Http\Requests;
 
-
 use App\Models\Raffle;
 use App\Models\UserContact;
 use Carbon\Carbon;
+use Illuminate\Foundation\Http\FormRequest;
 
-class RaffleStoreRequest extends Request
+class RaffleUpdateRequest extends Request
 {
     public function rules()
     {
@@ -48,15 +48,6 @@ class RaffleStoreRequest extends Request
                     return $fail('选择的联系方式不存在');
                 }
             }
-        ];
-    }
-
-    public function messages()
-    {
-        return [
-            'awards.*.name.required' => '请输入奖项名称',
-            'awards.*.amount.required' => '请输入奖项数量',
-            'draw_time.required' => '请设置开奖时间',
         ];
     }
 }

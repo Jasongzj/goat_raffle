@@ -30,7 +30,7 @@ class RaffleController extends Controller
                 'id', 'name', 'draw_time', 'img',
             ])
             ->where('sort', 0)
-            ->orderByDesc('draw_time')
+            ->orderBy('draw_time')
             ->paginate();
         return RaffleResource::collection($list)->additional(JsonResponse::$resourceAdditionalMeta);
     }
@@ -48,7 +48,7 @@ class RaffleController extends Controller
             ])
             ->where('sort', '>', 0)
             ->orderByDesc('sort')
-            ->orderByDesc('draw_time')
+            ->orderBy('draw_time')
             ->get();
 
         return RaffleResource::collection($list)->additional(JsonResponse::$resourceAdditionalMeta);

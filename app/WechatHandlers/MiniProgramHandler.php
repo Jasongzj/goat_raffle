@@ -20,10 +20,11 @@ class MiniProgramHandler implements EventHandlerInterface
 {
     public function handle($payload = null)
     {
-        switch ($payload['Event']) {
-            case 'user_enter_tempsession':
-                $this->sendContactQrCode($payload['FromUserName'], $payload['SessionFrom']);
-                break;
+        $matches = [];
+        preg_match('/\w+=(\d+)/', $payload['PagePath'], $matches);
+        if ($matches) {
+            $contactId = $matches[1];
+            $this->sendContactQrCode($payload['FromUserName'], $contactId);
         }
     }
 
@@ -31,32 +32,25 @@ class MiniProgramHandler implements EventHandlerInterface
     /**
      * 发送抽奖对应联系方式的二维码
      * @param $openid
-     * @param $sessionFrom
+     * @param $contactId
      * @throws \EasyWeChat\Kernel\Exceptions\InvalidArgumentException
      * @throws \EasyWeChat\Kernel\Exceptions\InvalidConfigException
      * @throws \EasyWeChat\Kernel\Exceptions\RuntimeException
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    protected function sendContactQrCode($openid, $sessionFrom)
+    protected function sendContactQrCode($openid, $contactId)
     {
         $wechatService = new WechatService();
         $miniProgram = $wechatService->getMiniProgram();
-        // 获取SessionFrom中的 contact_id
-        $sessionFrom = json_decode($sessionFrom, true);
-        $contactId = $sessionFrom['contact_id'];
-
-        if (!$contactId) {
-            return ;
-        }
 
         // 获取缓存的 media_id
-        $mediaId = Cache::get('user_contact_img:'.$contactId);
+        $mediaId = Cache::get('user_contact_img:' . $contactId);
 
         if (!$mediaId) {
             $contact = UserContact::query()->find($contactId);
 
             if (!$contact || $contact->type != UserContact::TYPE_SUBS || !$contact->img) {
-                return ;
+                return;
             }
             // 保存素材到本地
             $filename = bin2hex(random_bytes(8)) . '.jpg';
@@ -76,7 +70,7 @@ class MiniProgramHandler implements EventHandlerInterface
             $response = $miniProgram->media->uploadImage($scanPicPath);
             $mediaId = $response['media_id'];
             // 缓存临时素材 media_id , 3天有效
-            Cache::put('user_contact_img:'.$contactId, $mediaId, Carbon::now()->addDays(3));
+            Cache::put('user_contact_img:' . $contactId, $mediaId, Carbon::now()->addDays(3));
 
             // 删除二维码素材和合成的素材
             unlink($codePath);

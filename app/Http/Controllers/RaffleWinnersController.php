@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Traits\JsonResponse;
 use App\Models\RaffleWinner;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\Resource;
@@ -22,7 +23,7 @@ class RaffleWinnersController extends Controller
             ->select(['raffle.id', 'raffle.name', 'raffle.draw_time', 'raffle.img'])
             ->orderByDesc('raffle.draw_time')
             ->paginate(5);
-        return Resource::collection($list)->additional($list);
+        return Resource::collection($list)->additional(JsonResponse::$resourceAdditionalMeta);
     }
 
     /**

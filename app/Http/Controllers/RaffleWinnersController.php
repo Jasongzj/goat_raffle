@@ -70,7 +70,10 @@ class RaffleWinnersController extends Controller
             return $this->failed('该抽奖未结束', 400);
         }
         $winners = RaffleWinner::query()
-            ->with('users:id,avatar_url,nick_name')
+            ->with([
+                'users:id,avatar_url,nick_name',
+                'award:id,name'
+            ])
             ->where('raffle_id', $request->input('rid'))
             ->orderBy('award_id')
             ->get();

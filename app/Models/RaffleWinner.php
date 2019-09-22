@@ -15,6 +15,11 @@ class RaffleWinner extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function award()
+    {
+        return $this->belongsTo(RaffleAward::class, 'award_id');
+    }
+
     public static function getListByAwardIds($awardIds)
     {
         $winnerList = static::query()

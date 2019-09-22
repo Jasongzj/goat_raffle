@@ -78,15 +78,15 @@ class RaffleController extends Controller
         $raffle->participants_list = $participants;
         // 获取中奖名单
         $winners = [];
+        $completedWinnerCount = 0;
         if ($raffle->status == Raffle::STATUS_ENDED) {
             $awardIds = $raffle->awards->pluck('id')->all();
             $winnerList = RaffleWinner::query()
                 ->whereIn('award_id', $awardIds)
                 ->with('users:id,avatar_url,nick_name')
-                ->select(['raffle_winners.award_id', 'raffle_winners.user_id'])
+                ->select(['raffle_winners.award_id', 'raffle_winners.user_id', 'raffle_winners.address', 'raffle_winners.message'])
                 ->orderBy('award_id')
                 ->get();
-            $winners = [];
             foreach ($winnerList as $winner) {
                 foreach ($raffle->awards as $award) {
                     if ($winner->award_id == $award->id) {
@@ -94,13 +94,19 @@ class RaffleController extends Controller
                             'award_name' => $award->name,
                             'award_amount' => $award->amount,
                             'users' => $winner->users,
+                            'address' => $winner->addreess,
+                            'message' => $winner->message,
                         ];
+                        // 已完善收货地址，统计+1
+                        if ($winner->address) $completedWinnerCount++;
                     }
                 }
             }
-            $raffle->winner_list = $winners;
         }
         $raffle->winner_list = $winners;
+        $raffle->winner_count = count($winners);
+        $raffle->completed_winner_count = $completedWinnerCount;
+        // 获取中奖者地址信息
         return $this->success($raffle);
     }
 

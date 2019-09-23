@@ -67,7 +67,7 @@ class RaffleDraw implements ShouldQueue
                 $winners = [];
                 $amount = (count($userIds) > $this->award->amount) ? $this->award->amount : count($userIds);
 
-                $awardWhitelist = $whitelist[$this->award->id];
+                $awardWhitelist = $whitelist[$this->award->id] ?? [];
                 if ($awardWhitelist) {
                     $whitelistUserIds = array_column($awardWhitelist,'user_id');
                     $userIds = array_diff($userIds, $whitelistUserIds);  // 先剔除参与名单中白名单的用户

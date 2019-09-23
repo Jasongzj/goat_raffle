@@ -88,6 +88,10 @@ class RaffleService extends AbstractService
                     }
                 }
             }
+            if (!$winners[$key]['users']) {
+                unset($winners[$key]);
+                break;
+            }
         }
         return $raffle;
     }

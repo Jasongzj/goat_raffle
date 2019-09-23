@@ -10,6 +10,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Support\Facades\Redis;
 
 class RaffleDraw implements ShouldQueue
 {
@@ -109,7 +110,7 @@ class RaffleDraw implements ShouldQueue
                 $notification = '你发起的抽奖未开奖，因参与人数为0';
                 $result = $raffle->sendWechatMessage($raffle->launcher->openid, $formId, $notification);
                 // 删除使用的formId
-                \Redis::zRem('form_id_of_'.$raffle->user_id, $formId);
+                Redis::zrem('form_id_of_'.$raffle->user_id, $formId);
 
                 // 发送成功则不继续发送
                 if ($result) {
@@ -127,7 +128,6 @@ class RaffleDraw implements ShouldQueue
      */
     protected function notifyParticipants(Raffle $raffle)
     {
-        $redis = new \Redis();
         foreach ($raffle->participants as $participant) {
             // Redis 按过期时间排序，取最临近过期的值
             for ($i = 0; $i < 10; $i++) {
@@ -137,7 +137,7 @@ class RaffleDraw implements ShouldQueue
                     $notification = $raffle->launcher->nick_name . ' 发起的活动正在开奖，快来看看你中奖了没有';
                     $result = $raffle->sendWechatMessage($participant->user->openid, $formId, $notification);
                     // 删除使用的formId
-                    $redis->zRem('form_id_of_'.$participant->id, $formId);
+                    Redis::zrem('form_id_of_'.$participant->id, $formId);
 
                     if ($result) {
                         break;
@@ -156,8 +156,7 @@ class RaffleDraw implements ShouldQueue
     protected function getFormId($userId)
     {
         // 返回的是个 array
-        $redis = new \Redis();
-        $formId = $redis->zRange('form_id_of_'.$userId, 0, 1);
+        $formId = Redis::zrange('form_id_of_'.$userId, 0, 1);
         if ($formId) {
             return $formId[0];
         }

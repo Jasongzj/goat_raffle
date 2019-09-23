@@ -9,6 +9,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Support\Facades\Redis;
 
 class ExpireFormId implements ShouldQueue
 {
@@ -26,9 +27,8 @@ class ExpireFormId implements ShouldQueue
 
         // 处理每位用户的过期Form_id
         $expiredAt = Carbon::now()->getTimestamp();
-        $redis = new \Redis();
         foreach ($userIds as $userId) {
-            $redis->zRemRangeByScore('form_id_of_'. $userId, 0, $expiredAt);
+            Redis::zremrangebyscore('form_id_of_'. $userId, 0, $expiredAt);
         }
     }
 }

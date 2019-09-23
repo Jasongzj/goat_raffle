@@ -188,6 +188,9 @@ class RaffleDraw implements ShouldQueue
      */
     protected function drawWinners(int $amount, array &$userIds, array &$winners)
     {
+        if (!$userIds || !$amount) {
+            return;
+        }
         $awardUserKeys = array_rand($userIds, $amount);
 
         if ($amount == 1) {

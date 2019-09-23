@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redis;
 
 class AuthController extends Controller
 {
@@ -65,7 +66,7 @@ class AuthController extends Controller
         $user = Auth::guard('api')->user();
         $expiredAt = Carbon::now()->addDays(7)->getTimestamp();
         // 在队列尾部插入新的form_id, 分数为过期时间
-        \Redis::zadd('form_id_of_'. $user->id, $expiredAt, $request->input('form_id'));
+        Redis::zadd('form_id_of_'. $user->id, $expiredAt, $request->input('form_id'));
         return $this->message('保存成功');
     }
 }

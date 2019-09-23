@@ -46,8 +46,14 @@ class RaffleDraw implements ShouldQueue
             // 进行抽奖
             $awards = $raffle->awards;
             $userIds = $raffle->participants->pluck('user_id')->all();
+
+            // 获取抽奖白名单
+
             foreach ($awards as $award) {
                 $winners = [];
+                if (!$userIds) {
+                    break;
+                }
                 $amount = (count($userIds) > $award->amount) ? $award->amount : count($userIds);
                 $awardUserKeys = array_rand($userIds, $amount);
 

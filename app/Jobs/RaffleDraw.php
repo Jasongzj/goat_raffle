@@ -125,7 +125,7 @@ class RaffleDraw implements ShouldQueue
             if ($formId) {
                 // 通知发起者活动未开奖
                 $notification = '你发起的抽奖未开奖，因参与人数为0';
-                $result = $this->raffle->sendWechatMessage($this->raffle->launcher->openid, $formId, $notification);
+                $result = $this->raffle->sendWechatMessage($this->raffle->launcher->openid, $formId, $this->raffle->id, $notification);
                 // 删除使用的formId
                 Redis::zrem('form_id_of_'.$this->raffle->user_id, $formId);
 
@@ -151,7 +151,7 @@ class RaffleDraw implements ShouldQueue
                 logger('用户'. $participant->user_id . '本次form_id：' . $formId);
                 if ($formId) {
                     $notification = $this->raffle->launcher->nick_name . ' 发起的活动正在开奖，快来看看你中奖了没有';
-                    $result = $this->raffle->sendWechatMessage($participant->user->openid, $formId, $notification);
+                    $result = $this->raffle->sendWechatMessage($participant->user->openid, $formId, $this->raffle->id, $notification);
                     // 删除使用的formId
                     Redis::zrem('form_id_of_'.$participant->user_id, $formId);
 

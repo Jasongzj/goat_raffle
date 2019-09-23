@@ -143,17 +143,18 @@ class Raffle extends Model
      * 发送抽奖模版消息
      * @param $openid
      * @param $formId
+     * @param $raffleId
      * @param $notification
      * @return bool
      * @throws \EasyWeChat\Kernel\Exceptions\InvalidArgumentException
      * @throws \EasyWeChat\Kernel\Exceptions\InvalidConfigException
      */
-    public function sendWechatMessage($openid, $formId, $notification)
+    public function sendWechatMessage($openid, $formId, $raffleId, $notification)
     {
         $msg = [
             'touser' => $openid,
             'template_id' => 'i4AYaMUfOGTLMDOwCLDnjsW4Je3moxua4VZtOvYV_NE',
-            'page' => '',
+            'page' => '/pages/lottery-detail/index?id='.$raffleId,
             'form_id' => $formId,
             'data' => [
                 'keyword1' => $this->template_title,

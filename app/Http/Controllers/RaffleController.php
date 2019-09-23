@@ -10,9 +10,7 @@ use App\Http\Requests\RaffleUpdateRequest;
 use App\Http\Requests\SubscriptionPicture;
 use App\Http\Resources\RaffleResource;
 use App\Models\Raffle;
-use App\Models\RaffleAward;
-use App\Models\RaffleWinner;
-use App\Models\UserRaffle;
+use App\Services\RaffleService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -57,59 +55,18 @@ class RaffleController extends Controller
     /**
      * 抽奖详情
      * @param Raffle $raffle
+     * @param RaffleService $raffleService
      * @return mixed
      */
-    public function show(Raffle $raffle)
+    public function show(Raffle $raffle, RaffleService $raffleService)
     {
         $raffle->load([
             'userContact:id,user_id,type,subs_type,title,content',
-            'awards:id,raffle_id,name,img,amount'
+            'awards:id,raffle_id,name,img,amount',
         ]);
-        // 获取参与人员列表
-        $participants = [];
-        if ($raffle->current_participants) {
-            $participants = UserRaffle::getParticipantsList($raffle->id);
-        }
-        $raffle->participants_list = $participants;
-        // 获取中奖名单
-        $winners = [];
-        $winnerCount = 0;
-        $completedWinnerCount = 0;
-        if ($raffle->status == Raffle::STATUS_ENDED) {
-            $awardIds = $raffle->awards->pluck('id')->all();
-            $winnerList = RaffleWinner::getListByAwardIds($awardIds);
 
-            // 当前用户是否中奖及填写地址
-            $winnerUserIds = $winnerList->pluck('user_id')->all();
-            $user = Auth::guard('api')->user();
-            $raffle->is_winner = in_array($user->id, $winnerUserIds) ? true : false;
-            $raffle->is_fill_address = false;
+        $raffle = $raffleService->show($raffle);
 
-            // 重组中奖者列表数据
-            foreach ($raffle->awards as $key => $award) {
-                $winners[] = [
-                    'award_name' => $award->name,
-                    'award_amount' => $award->amount,
-                ];
-                foreach ($winnerList as $winner) {
-                    if ($winner->award_id == $award->id) {
-                        $winners[$key]['users'][] = $winner->users;
-                        $winnerCount++;
-                        if ($winner->user_id == $user->id) {
-                            $raffle->my_award = $winners[$key]['award_name'];
-                        }
-                        // 已完善收货地址，统计+1
-                        if ($winner->address)  {
-                            $completedWinnerCount++;
-                            if ($winner->user_id == $user->id) $raffle->is_fill_address = true;
-                        }
-                    }
-                }
-            }
-        }
-        $raffle->winner_list = $winners;
-        $raffle->winner_count = $winnerCount;
-        $raffle->completed_winner_count = $completedWinnerCount;
         // 获取中奖者地址信息
         return $this->success($raffle);
     }

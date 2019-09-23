@@ -88,7 +88,7 @@ class RaffleService extends AbstractService
                     }
                 }
             }
-            if (!$winners[$key]['users']) {
+            if (!isset($winners[$key]['users'])) {
                 unset($winners[$key]);
                 break;
             }

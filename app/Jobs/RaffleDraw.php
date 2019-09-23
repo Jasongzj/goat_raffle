@@ -55,7 +55,7 @@ class RaffleDraw implements ShouldQueue
                         'award_id' => $award->id,
                         'user_id' => $userIds[$awardUserKeys],
                     ];
-                    unset($awardUserKeys);
+                    unset($userIds[$awardUserKeys]);
                 } else {
                     foreach ($awardUserKeys as $key) {
                         $winners[] = [

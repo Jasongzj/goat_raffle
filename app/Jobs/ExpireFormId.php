@@ -26,8 +26,9 @@ class ExpireFormId implements ShouldQueue
 
         // 处理每位用户的过期Form_id
         $expiredAt = Carbon::now()->getTimestamp();
+        $redis = new \Redis();
         foreach ($userIds as $userId) {
-            \Redis::zRemRangeByScore('form_id_of_'. $userId, 0, $expiredAt);
+            $redis->zRemRangeByScore('form_id_of_'. $userId, 0, $expiredAt);
         }
     }
 }

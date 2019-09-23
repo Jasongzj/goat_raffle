@@ -60,7 +60,7 @@ class RaffleDraw implements ShouldQueue
                 ->where('raffle_id', $raffle->id)
                 ->get()
                 ->groupBy('award_id')
-                ->all();
+                ->toArray();
 
             foreach ($awards as $award) {
                 $this->award = $award;

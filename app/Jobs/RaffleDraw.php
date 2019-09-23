@@ -143,7 +143,7 @@ class RaffleDraw implements ShouldQueue
                     $notification = $raffle->launcher->nick_name . ' 发起的活动正在开奖，快来看看你中奖了没有';
                     $result = $raffle->sendWechatMessage($participant->user->openid, $formId, $notification);
                     // 删除使用的formId
-                    Redis::zrem('form_id_of_'.$participant->id, $formId);
+                    Redis::zrem('form_id_of_'.$participant->user_id, $formId);
 
                     if ($result) {
                         break;

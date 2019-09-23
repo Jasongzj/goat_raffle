@@ -54,9 +54,9 @@ class RaffleStoreRequest extends Request
     public function messages()
     {
         return [
+            'draw_time.required' => '请设置开奖时间',
             'awards.*.name.required' => '请输入奖项名称',
             'awards.*.amount.required' => '请输入奖项数量',
-            'draw_time.required' => '请设置开奖时间',
         ];
     }
 }

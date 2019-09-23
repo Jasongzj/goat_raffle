@@ -46,6 +46,7 @@ class RaffleDraw implements ShouldQueue
             $awards = $raffle->awards;
             $userIds = $raffle->participants->pluck('user_id')->all();
             foreach ($awards as $award) {
+                $winners = [];
                 $amount = (count($userIds) > $award->amount) ? $award->amount : count($userIds);
                 $awardUserKeys = array_rand($userIds, $amount);
 

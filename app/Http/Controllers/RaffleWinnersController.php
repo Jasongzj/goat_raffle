@@ -43,9 +43,7 @@ class RaffleWinnersController extends Controller
         if (!$winner) {
             return $this->failed('查无你的中奖记录', 400);
         }
-        if ($winner->address) {
-            return $this->failed('中奖地址无法修改', 400);
-        }
+
         $winner->update($attributes);
 
         return $this->message('登记成功');

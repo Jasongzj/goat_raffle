@@ -65,7 +65,7 @@ class RaffleController extends Controller
     public function show(Raffle $raffle, RaffleService $raffleService)
     {
         $raffle->load([
-            'launcher:id,user,nick_name,avatar_url',
+            'launcher:id,nick_name,avatar_url',
             'userContact:id,user_id,type,subs_type,title,content',
             'awards:id,raffle_id,name,img,amount',
         ]);

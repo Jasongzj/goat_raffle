@@ -23,6 +23,7 @@ class RaffleController extends Controller
     {
         // 未开奖，按开奖截止时间排序
         $list = Raffle::query()
+            ->with(['awards:id,raffle_id,name,img,amount',])
             ->where('status', Raffle::STATUS_NOT_END)
             ->select([
                 'id', 'name', 'draw_time', 'img',
@@ -40,6 +41,7 @@ class RaffleController extends Controller
     public function top()
     {
         $list = Raffle::query()
+            ->with(['awards:id,raffle_id,name,img,amount',])
             ->where('status', Raffle::STATUS_NOT_END)
             ->select([
                 'id', 'name', 'draw_time', 'img'

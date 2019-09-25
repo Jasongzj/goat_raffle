@@ -11,6 +11,8 @@ use App\Http\Requests\SubscriptionPicture;
 use App\Http\Resources\RaffleResource;
 use App\Models\Raffle;
 use App\Services\RaffleService;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\Resource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -31,7 +33,7 @@ class RaffleController extends Controller
             ->where('sort', 0)
             ->orderBy('draw_time')
             ->paginate();
-        return RaffleResource::collection($list)->additional(JsonResponse::$resourceAdditionalMeta);
+        return Resource::collection($list)->additional(JsonResponse::$resourceAdditionalMeta);
     }
 
     /**
@@ -51,7 +53,7 @@ class RaffleController extends Controller
             ->orderBy('draw_time')
             ->get();
 
-        return RaffleResource::collection($list)->additional(JsonResponse::$resourceAdditionalMeta);
+        return Resource::collection($list)->additional(JsonResponse::$resourceAdditionalMeta);
     }
 
     /**
@@ -63,6 +65,7 @@ class RaffleController extends Controller
     public function show(Raffle $raffle, RaffleService $raffleService)
     {
         $raffle->load([
+            'launcher:id,user,nick_name,avatar_url',
             'userContact:id,user_id,type,subs_type,title,content',
             'awards:id,raffle_id,name,img,amount',
         ]);
@@ -200,12 +203,49 @@ class RaffleController extends Controller
     {
         $user = Auth::guard('api')->user();
         $list = Raffle::query()
+            ->with(['awards:id,raffle_id,name,img,amount',])
             ->where('user_id', $user->id)
             ->select([
                 'id', 'name', 'draw_time', 'img', 'status'
             ])
             ->orderByDesc('id')
             ->get();
-        return RaffleResource::collection($list)->additional(JsonResponse::$resourceAdditionalMeta);
+        return Resource::collection($list)->additional(JsonResponse::$resourceAdditionalMeta);
+    }
+
+    /**
+     * 我参与的抽奖
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
+    public function participatedRaffle()
+    {
+        $user = Auth::guard('api')->user();
+        $list = Raffle::query()
+            ->with(['awards:id,raffle_id,name,img,amount'])
+            ->where('user_raffle.user_id', $user->id)
+            ->join('user_raffle', 'user_raffle.raffle_id', '=', 'raffle.id')
+            ->select(['raffle.id', 'raffle.name', 'raffle.draw_time', 'raffle.img'])
+            ->orderBy('user_raffle.id')
+            ->paginate(5);
+        return Resource::collection($list)->additional(JsonResponse::$resourceAdditionalMeta);
+    }
+
+    /**
+     * 我的中奖记录
+     * @param Request $request
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
+    public function myAwards(Request $request)
+    {
+        $user = Auth::guard('api')->user();
+        $list = Raffle::query()
+            ->with(['awards:id,raffle_id,name,img,amount',])
+            ->where('raffle_winners.user_id', $user->id)
+            ->join('raffle_winners', 'raffle.id', '=', 'raffle_winners.raffle_id')
+            ->select(['raffle.id', 'raffle.name', 'raffle.draw_time', 'raffle.img'])
+            ->orderByDesc('raffle.draw_time')
+            ->paginate(5);
+
+        return Resource::collection($list)->additional(JsonResponse::$resourceAdditionalMeta);
     }
 }

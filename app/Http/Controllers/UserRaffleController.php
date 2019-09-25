@@ -14,21 +14,6 @@ use Illuminate\Support\Facades\DB;
 class UserRaffleController extends Controller
 {
     /**
-     * 我参与的抽奖
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
-     */
-    public function participatedRaffle()
-    {
-        $user = Auth::guard('api')->user();
-        $list = UserRaffle::query()->where('user_raffle.user_id', $user->id)
-            ->join('raffle', 'user_raffle.raffle_id', '=', 'raffle.id')
-            ->select(['raffle.id', 'raffle.name', 'raffle.draw_time', 'raffle.img'])
-            ->orderBy('user_raffle.id')
-            ->paginate(5);
-        return UserRaffleResource::collection($list)->additional(JsonResponse::$resourceAdditionalMeta);
-    }
-
-    /**
      * 参与抽奖
      * @param Raffle $raffle
      * @return mixed

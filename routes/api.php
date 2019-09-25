@@ -28,8 +28,8 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::post('raffle/upload_subs', 'RaffleController@uploadSubscription'); // 上传奖品图
 
     Route::get('raffle/launch', 'RaffleController@launchedRaffle'); // 我发起的抽奖
-    Route::get('raffle/participate', 'UserRaffleController@participatedRaffle');  // 我参与的抽奖
-    Route::get('raffle/award', 'RaffleWinnersController@myAwards');  // 我的中奖记录
+    Route::get('raffle/participate', 'RaffleController@participatedRaffle');  // 我参与的抽奖
+    Route::get('raffle/award', 'RaffleController@myAwards');  // 我的中奖记录
     Route::post('raffle/participate/{raffle}', 'UserRaffleController@store');   // 参与抽奖
 
     Route::post('raffle/fill_in_address', 'RaffleWinnersController@fillInAddress'); // 填写中奖收货地址

@@ -72,7 +72,6 @@ class RaffleController extends Controller
 
         $raffle = $raffleService->show($raffle);
 
-        // 获取中奖者地址信息
         return $this->success($raffle);
     }
 

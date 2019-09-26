@@ -2,7 +2,16 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('raffle', 'RaffleController@index');
-Route::get('raffle/{raffle}', 'RaffleController@show');
+Route::post('login', 'AuthController@login');
 
-Route::post('raffle/whitelist', 'RaffleWhitelistController@store');
+Route::group(['middleware' => 'auth:admin'], function () {
+    Route::post('logout', 'AuthController@logout');
+
+    Route::get('raffle', 'RaffleController@index');  // 抽奖列表
+    Route::get('raffle/{raffle}', 'RaffleController@show');  // 抽奖详情
+
+    Route::post('raffle/whitelist', 'RaffleWhitelistController@store'); // 配置白名单
+});
+
+
+

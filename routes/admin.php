@@ -7,6 +7,8 @@ Route::post('login', 'AuthController@login');
 Route::group(['middleware' => 'auth:admin'], function () {
     Route::post('logout', 'AuthController@logout');
 
+    Route::get('users/search', 'UsersController@search'); // 搜索用户
+
     Route::get('raffle', 'RaffleController@index');  // 抽奖列表
     Route::get('raffle/{raffle}', 'RaffleController@show');  // 抽奖详情
 

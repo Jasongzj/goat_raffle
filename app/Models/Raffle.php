@@ -35,7 +35,7 @@ class Raffle extends Model
         self::STATUS_ENDED => '已开奖',
     ];
 
-    public $participatedRaffleIds;
+    public $participatedRaffleIds = [];
 
     protected $table = 'raffle';
 
@@ -127,8 +127,8 @@ class Raffle extends Model
      */
     public function getHasParticipatedAttribute()
     {
-        if (!$this->participatedRaffleIds) {
-            $user = Auth::guard('api')->user();
+        $user = Auth::guard('api')->user();
+        if (!$this->participatedRaffleIds && $user) {
             $participatedRaffleIds = UserRaffle::query()
                 ->where('user_id', $user->id)
                 ->get(['raffle_id'])

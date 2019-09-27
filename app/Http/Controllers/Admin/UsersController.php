@@ -17,8 +17,10 @@ class UsersController extends Controller
 
         $query = User::query();
 
-        if ($raffleId = $request->input('raffle_id')) {
-            $whitelistUserIds = RaffleWhitelist::query()->where('raffle_id', $raffleId)
+        if ($raffleId = $request->input('raffle_id') && $awardId = $request->input('award_id')) {
+            $whitelistUserIds = RaffleWhitelist::query()
+                ->where('raffle_id', $raffleId)
+                ->where('award_id', '<>', $awardId)
                 ->get(['user_id'])
                 ->pluck('user_id')
                 ->all();
@@ -29,7 +31,7 @@ class UsersController extends Controller
             ->where('nick_name', 'like', '%' . $request->input('name') . '%')
             ->select(['id', 'nick_name', 'avatar_url'])
             ->get();
-        
+
         return $this->success($list);
     }
 }

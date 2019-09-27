@@ -20,6 +20,7 @@ class RaffleController extends Controller
             'awards:id,raffle_id,name,img,amount',
         ])
             ->select(['id', 'user_id', 'name', 'draw_time', 'img', 'sort'])
+            ->orderByDesc('sort')
             ->orderBy('draw_time')
             ->paginate();
         return Resource::collection($list)->additional(JsonResponse::$resourceAdditionalMeta);
@@ -46,5 +47,19 @@ class RaffleController extends Controller
         }
 
         return $this->success($raffle);
+    }
+
+    /**
+     * 排序
+     * @param Request $request
+     * @param Raffle $raffle
+     * @return mixed
+     */
+    public function update(Request $request, Raffle $raffle)
+    {
+        $sort = $request->input('sort');
+        $raffle->sort = $sort;
+        $raffle->save();
+        return $this->message('更新成功');
     }
 }

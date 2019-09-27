@@ -23,6 +23,7 @@ class RaffleWhitelistController extends Controller
 
         // 查询是否已配置在其他奖项白名单中
         $userExist = RaffleWhitelist::query()->where('raffle_id', $raffleId)
+            ->where('award_id', '<>', $awardId)
             ->whereIn('user_id', $userIds)
             ->exists();
         if ($userExist) {

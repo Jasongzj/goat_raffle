@@ -19,7 +19,7 @@ class RaffleController extends Controller
             'launcher:id,nick_name',
             'awards:id,raffle_id,name,img,amount',
         ])
-            ->select(['id', 'user_id', 'name', 'draw_time', 'img', 'sort'])
+            ->select(['id', 'user_id', 'name', 'draw_time', 'img', 'sort', 'sponsor'])
             ->orderByDesc('sort')
             ->orderBy('draw_time')
             ->paginate();
@@ -32,7 +32,8 @@ class RaffleController extends Controller
                 'launcher:id,nick_name,avatar_url',
                 'awards:id,raffle_id,name,img,amount',
             ])->setVisible([
-                'id', 'user_id', 'name', 'draw_time', 'img', 'launcher', 'awards',
+                'id', 'user_id', 'name', 'draw_time', 'img', 'sort', 'sponsor',
+                'launcher', 'awards',
             ]);
 
         $awardWhitelist = RaffleWhitelist::query()
@@ -59,6 +60,10 @@ class RaffleController extends Controller
     {
         $sort = $request->input('sort');
         $raffle->sort = $sort;
+        $sponsor = $request->input('sponsor');
+        if ($sponsor) {
+            $raffle->sponsor = $sponsor;
+        }
         $raffle->save();
         return $this->message('更新成功');
     }

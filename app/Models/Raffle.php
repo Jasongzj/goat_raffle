@@ -42,7 +42,7 @@ class Raffle extends Model
     protected $fillable = [
         'name', 'img', 'draw_type', 'draw_time', 'draw_participants',
         'desc', 'context', 'context_img', 'is_sharable', 'contact_id',
-        'award_type',
+        'award_type', 'sort', 'sponsor',
     ];
 
     protected $casts = [

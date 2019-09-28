@@ -49,6 +49,7 @@ class RaffleController extends Controller
                 'id', 'name', 'draw_time', 'img'
             ])
             ->where('sort', '>', 0)
+            ->limit(5)
             ->orderByDesc('sort')
             ->orderBy('draw_time')
             ->get();

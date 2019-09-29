@@ -98,7 +98,7 @@ class RaffleController extends Controller
             // 根据奖项生成抽奖标题
             $attributes['name'] = '';
             foreach ($awards as $award) {
-                $attributes['name'] .= $award['name'] . ' x ' . $award['amount'];
+                $attributes['name'] .= $award['name'] . ' x ' . $award['amount'] . ' ';
                 if (empty($attributes['img']) && !empty($award['img'])) {
                     $attributes['img'] = $award['img'];
                 }

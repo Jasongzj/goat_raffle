@@ -19,7 +19,7 @@ class RaffleSeeder extends Seeder
             // 根据奖项生成抽奖标题
             $name = '';
             foreach ($awards as $award) {
-                $name .= $award['name'] . ' x ' . $award['amount'];
+                $name .= $award['name'] . ' x ' . $award['amount'] . ' ';
             }
             $item->update(['name' => $name]);
             // 用户发起抽奖统计+1

@@ -22,6 +22,9 @@ class RaffleSeeder extends Seeder
                 $name .= $award['name'] . ' x ' . $award['amount'];
             }
             $item->update(['name' => $name]);
+            // 用户发起抽奖统计+1
+            $user = \App\Models\User::query()->where('user_id', $item->user_id);
+            $user->stat()->increment('launched_raffle_amount', 1);
         }
     }
 }

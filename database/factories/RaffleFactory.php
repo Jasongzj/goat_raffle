@@ -7,7 +7,7 @@ use Faker\Generator as Faker;
 
 $factory->define(Raffle::class, function (Faker $faker) {
     $randomDay = random_int(0, 7);
-    $userIds = \App\Models\User::query()->select(['id'])->get()->pluck('id')->all();
+    $userIds = \App\Models\User::query()->whereNotNull('nick_name')->select(['id'])->get()->pluck('id')->all();
     return [
         'draw_type' => Raffle::DRAW_BASE_ON_TIME,
         'draw_time' => \Carbon\Carbon::now()->addDays($randomDay),

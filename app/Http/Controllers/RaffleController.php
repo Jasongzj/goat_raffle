@@ -11,8 +11,10 @@ use App\Http\Requests\SubscriptionPicture;
 use App\Http\Resources\RaffleResource;
 use App\Models\Raffle;
 use App\Services\RaffleService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\Resource;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -21,18 +23,15 @@ class RaffleController extends Controller
     /**
      * 首页抽奖列表
      */
-    public function index()
+    public function index(Request $request)
     {
-        // 未开奖，按开奖截止时间排序
-        $list = Raffle::query()
-            ->with(['awards:id,raffle_id,name,img,amount',])
-            ->where('status', Raffle::STATUS_NOT_END)
-            ->select([
-                'id', 'name', 'draw_time', 'img',
-            ])
-            ->where('sort', 0)
-            ->orderBy('draw_time')
-            ->paginate();
+        // 获取开奖时间过期不超过3天及未开奖的抽奖，随机展示50条
+        $page = $request->input('page') ?? 1;
+        $resource = Raffle::getIndexResource();
+        $perPage = 1;
+        $offset = ($page - 1) * $perPage;
+        $list = new LengthAwarePaginator($resource->slice($offset, $perPage), count($resource), $perPage, $page );
+
         return Resource::collection($list)->additional(JsonResponse::$resourceAdditionalMeta);
     }
 
@@ -203,10 +202,13 @@ class RaffleController extends Controller
     {
         $user = Auth::guard('api')->user();
         $list = Raffle::query()
-            ->with(['awards:id,raffle_id,name,img,amount',])
+            ->with([
+                'awards:id,raffle_id,name,img,amount',
+                'launcher:id,nick_name,avatar_url',
+            ])
             ->where('user_id', $user->id)
             ->select([
-                'id', 'name', 'draw_time', 'img', 'status'
+                'id', 'name', 'draw_time', 'img', 'status', 'user_id'
             ])
             ->orderByDesc('id')
             ->get();
@@ -221,10 +223,13 @@ class RaffleController extends Controller
     {
         $user = Auth::guard('api')->user();
         $list = Raffle::query()
-            ->with(['awards:id,raffle_id,name,img,amount'])
+            ->with([
+                'awards:id,raffle_id,name,img,amount',
+                'launcher:id,nick_name,avatar_url',
+            ])
             ->where('user_raffle.user_id', $user->id)
             ->join('user_raffle', 'user_raffle.raffle_id', '=', 'raffle.id')
-            ->select(['raffle.id', 'raffle.name', 'raffle.draw_time', 'raffle.img'])
+            ->select(['raffle.id', 'raffle.name', 'raffle.draw_time', 'raffle.img', 'raffle.user_id'])
             ->orderBy('user_raffle.id')
             ->paginate(5);
         return Resource::collection($list)->additional(JsonResponse::$resourceAdditionalMeta);
@@ -239,10 +244,13 @@ class RaffleController extends Controller
     {
         $user = Auth::guard('api')->user();
         $list = Raffle::query()
-            ->with(['awards:id,raffle_id,name,img,amount',])
+            ->with([
+                'awards:id,raffle_id,name,img,amount',
+                'launcher:id,nick_name,avatar_url',
+            ])
             ->where('raffle_winners.user_id', $user->id)
             ->join('raffle_winners', 'raffle.id', '=', 'raffle_winners.raffle_id')
-            ->select(['raffle.id', 'raffle.name', 'raffle.draw_time', 'raffle.img'])
+            ->select(['raffle.id', 'raffle.name', 'raffle.draw_time', 'raffle.img', 'raffle.user_id'])
             ->orderByDesc('raffle.draw_time')
             ->paginate(5);
 

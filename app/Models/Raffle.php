@@ -6,6 +6,7 @@ use App\Services\WechatService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class Raffle extends Model
 {
@@ -84,6 +85,32 @@ class Raffle extends Model
     public function winners()
     {
         return $this->hasMany(RaffleWinner::class);
+    }
+
+    /**
+     * 获取首页列表资源,50条
+     * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
+     */
+    public static function getIndexResource()
+    {
+        $resource = Cache::get('index_resource');
+        if (!$resource) {
+            $validTime = Carbon::now()->subDays(3);
+            $resource = static::query()
+                ->with([
+                    'awards:id,raffle_id,name,img,amount',
+                    'launcher:id,nick_name,avatar_url',
+                ])
+                ->where('draw_time', '>', $validTime)
+                ->inRandomOrder()
+                ->limit(50)
+                ->select([
+                    'id', 'name', 'draw_time', 'img', 'user_id',
+                ])
+                ->get();
+            Cache::put('index_resource', $resource, 30*60);
+        }
+        return $resource;
     }
 
 

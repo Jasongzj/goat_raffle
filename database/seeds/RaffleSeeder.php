@@ -11,7 +11,15 @@ class RaffleSeeder extends Seeder
      */
     public function run()
     {
-        $raffle = factory(\App\Models\Raffle::class)->times(20)->create();
+        // 重置统计数据
+        \App\Models\UserStat::query()->update([
+            'launched_raffle_amount' => 0,
+            'participated_raffle_amount' => 0,
+            'award_amount' => 0,
+        ]);
+        \App\Models\Raffle::query()->delete();
+
+        $raffle = factory(\App\Models\Raffle::class)->times(50)->create();
 
         foreach ($raffle as $item) {
             $nums = random_int(1, 3);

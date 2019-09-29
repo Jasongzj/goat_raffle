@@ -17,6 +17,10 @@ class RaffleSeeder extends Seeder
             'participated_raffle_amount' => 0,
             'award_amount' => 0,
         ]);
+        \App\Models\RaffleWhitelist::query()->delete();
+        \App\Models\RaffleWinner::query()->delete();
+        \App\Models\UserRaffle::query()->delete();
+        \App\Models\RaffleAward::query()->delete();
         \App\Models\Raffle::query()->delete();
 
         $raffle = factory(\App\Models\Raffle::class)->times(50)->create();

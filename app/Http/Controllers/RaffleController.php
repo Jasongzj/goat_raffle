@@ -22,15 +22,20 @@ class RaffleController extends Controller
 {
     /**
      * 首页抽奖列表
+     * @param Request $request
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index(Request $request)
     {
         // 获取开奖时间过期不超过3天及未开奖的抽奖，随机展示50条
         $page = $request->input('page') ?? 1;
         $resource = Raffle::getIndexResource();
-        $perPage = 1;
+        $perPage = 10;
         $offset = ($page - 1) * $perPage;
-        $list = new LengthAwarePaginator($resource->slice($offset, $perPage), count($resource), $perPage, $page );
+        $list = new LengthAwarePaginator(
+            $resource->slice($offset, $perPage), count($resource), $perPage, $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
 
         return Resource::collection($list)->additional(JsonResponse::$resourceAdditionalMeta);
     }

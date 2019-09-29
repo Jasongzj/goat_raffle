@@ -88,7 +88,7 @@ class Raffle extends Model
     }
 
     /**
-     * 获取首页列表资源,50条
+     * 获取首页列表资源,30条
      * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
      */
     public static function getIndexResource()
@@ -103,7 +103,7 @@ class Raffle extends Model
                 ])
                 ->where('draw_time', '>', $validTime)
                 ->inRandomOrder()
-                ->limit(50)
+                ->limit(30)
                 ->select([
                     'id', 'name', 'draw_time', 'img', 'user_id',
                 ])

@@ -13,6 +13,7 @@ class RaffleController extends Controller
 {
     public function index(Request $request)
     {
+        $pageSize = $request->input('page_size') ?? 10;
         $query = Raffle::query();
 
         $list = $query->with([
@@ -22,7 +23,7 @@ class RaffleController extends Controller
             ->select(['id', 'user_id', 'name', 'draw_time', 'img', 'sort', 'sponsor'])
             ->orderByDesc('sort')
             ->orderBy('draw_time')
-            ->paginate();
+            ->paginate($pageSize);
         return Resource::collection($list)->additional(JsonResponse::$resourceAdditionalMeta);
     }
 

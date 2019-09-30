@@ -162,7 +162,6 @@ class RaffleController extends Controller
             'context', 'context_img', 'award_type', 'contact_id',
             'is_sharable'
         ]);
-        $awards = $request->input('awards');
 
         $raffle = DB::transaction(function () use ($attributes, $awards, $raffle) {
             // 根据奖项生成抽奖标题

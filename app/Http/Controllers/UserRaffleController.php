@@ -67,4 +67,19 @@ class UserRaffleController extends Controller
     }
 
     // TODO 参与抽奖用户明细
+
+    /**
+     * 参与抽奖用户明细
+     * @param Request $request
+     * @return mixed
+     */
+    public function list(Request $request)
+    {
+        $list = UserRaffle::query()
+            ->where('raffle_id', $request->input('rid'))
+            ->join('users', 'users.id', '=', 'user_raffle.user_id')
+            ->select(['users.nick_name', 'users.avatar_url'])
+            ->get();
+        return $this->success($list);
+    }
 }

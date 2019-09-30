@@ -165,6 +165,7 @@ class RaffleController extends Controller
 
         $raffle = DB::transaction(function () use ($attributes, $awards, $raffle) {
             // 根据奖项生成抽奖标题
+            $attributes['name'] = '';
             foreach ($awards as $award) {
                 $attributes['name'] .= $award['name'] . ' x ' . $award['amount'];
                 if (empty($attributes['img']) && !empty($award['img'])) {

@@ -84,15 +84,28 @@ class RaffleController extends Controller
      * 发起抽奖
      * @param RaffleStoreRequest $request
      * @return mixed
+     * @throws \App\Exceptions\WechatException
      */
     public function store(RaffleStoreRequest $request)
     {
+        // 上传内容校验
+        $awards = $request->input('awards');
+        $awardNames = array_column($awards,'name');
+        $riskyContents = $request->only([
+            'desc', 'context',
+        ]);
+        $riskyContents = array_merge($riskyContents, $awardNames);
+
+        foreach ($riskyContents as $riskyContent) {
+            $this->contentCheck($riskyContent);
+        }
+
         $attributes = $request->only([
             'draw_type', 'draw_time', 'draw_participants', 'desc',
             'context', 'context_img', 'award_type', 'contact_id',
             'is_sharable'
         ]);
-        $awards = $request->input('awards');
+
 
         $raffle = DB::transaction(function () use ($attributes, $awards) {
             // 根据奖项生成抽奖标题
@@ -136,6 +149,10 @@ class RaffleController extends Controller
             return $this->failed('这不是你发起的抽奖！', 400);
         }
 
+        $riskyContents = $request->only([
+            'desc', 'context', 'awards.*.name'
+        ]);
+
         $attributes = $request->only([
             'draw_type', 'draw_time', 'draw_participants', 'desc',
             'context', 'context_img', 'award_type', 'contact_id',
@@ -167,6 +184,8 @@ class RaffleController extends Controller
      * 上传奖品图
      * @param AwardPicture $request
      * @return mixed
+     * @throws \App\Exceptions\WechatException
+     * @throws \EasyWeChat\Kernel\Exceptions\InvalidConfigException
      */
     public function uploadAwardPic(AwardPicture $request)
     {
@@ -179,6 +198,8 @@ class RaffleController extends Controller
      * 上传图文图片
      * @param ContextPicture $request
      * @return mixed
+     * @throws \App\Exceptions\WechatException
+     * @throws \EasyWeChat\Kernel\Exceptions\InvalidConfigException
      */
     public function uploadContext(ContextPicture $request)
     {
@@ -191,6 +212,8 @@ class RaffleController extends Controller
      * 上传关注二维码
      * @param SubscriptionPicture $request
      * @return mixed
+     * @throws \App\Exceptions\WechatException
+     * @throws \EasyWeChat\Kernel\Exceptions\InvalidConfigException
      */
     public function uploadSubscription(SubscriptionPicture $request)
     {

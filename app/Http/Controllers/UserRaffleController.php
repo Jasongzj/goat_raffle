@@ -66,8 +66,6 @@ class UserRaffleController extends Controller
         return $this->success($data);
     }
 
-    // TODO 参与抽奖用户明细
-
     /**
      * 参与抽奖用户明细
      * @param Request $request

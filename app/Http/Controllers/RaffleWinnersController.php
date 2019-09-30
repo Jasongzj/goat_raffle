@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Traits\JsonResponse;
 use App\Models\Raffle;
 use App\Models\RaffleWinner;
+use App\Services\WechatService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\Resource;
 use Illuminate\Support\Facades\Auth;
@@ -15,10 +16,13 @@ class RaffleWinnersController extends Controller
      * 填写中奖收货地址
      * @param Request $request
      * @return mixed
+     * @throws \App\Exceptions\WechatException
      */
     public function fillInAddress(Request $request)
     {
         $attributes = $request->only(['address', 'message']);
+        $this->contentCheck(join(',', $attributes));
+
         $user = Auth::guard('api')->user();
         $winner = RaffleWinner::query()
             ->where('raffle_id', $request->input('rid'))

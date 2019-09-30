@@ -13,7 +13,7 @@ class RaffleStoreRequest extends Request
     {
         return [
             'awards.*.name' => 'required',
-            'awards.*.amount' => 'required',
+            'awards.*.amount' => 'required|numeric',
             'draw_type' => function ($attribute, $value, $fail) {
                 if (!$value) {
                     return $fail('请选择开奖方式');
@@ -57,6 +57,7 @@ class RaffleStoreRequest extends Request
             'draw_time.required' => '请设置开奖时间',
             'awards.*.name.required' => '请输入奖项名称',
             'awards.*.amount.required' => '请输入奖项数量',
+            'awards.*.amount.numeric' => '奖项数量值异常',
         ];
     }
 }

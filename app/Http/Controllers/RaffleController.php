@@ -94,11 +94,9 @@ class RaffleController extends Controller
         $riskyContents = $request->only([
             'desc', 'context',
         ]);
-        $riskyContents = array_merge($riskyContents, $awardNames);
+        $riskyContents = join(',', array_merge($riskyContents, $awardNames));
+        $this->contentCheck($riskyContents);
 
-        foreach ($riskyContents as $riskyContent) {
-            $this->contentCheck($riskyContent);
-        }
 
         $attributes = $request->only([
             'draw_type', 'draw_time', 'draw_participants', 'desc',
@@ -137,6 +135,7 @@ class RaffleController extends Controller
      * @param RaffleUpdateRequest $request
      * @param Raffle $raffle
      * @return mixed
+     * @throws \App\Exceptions\WechatException
      */
     public function update(RaffleUpdateRequest $request, Raffle $raffle)
     {
@@ -149,9 +148,14 @@ class RaffleController extends Controller
             return $this->failed('这不是你发起的抽奖！', 400);
         }
 
+        // 上传内容校验
+        $awards = $request->input('awards');
+        $awardNames = array_column($awards,'name');
         $riskyContents = $request->only([
-            'desc', 'context', 'awards.*.name'
+            'desc', 'context',
         ]);
+        $riskyContents = join(',', array_merge($riskyContents, $awardNames));
+        $this->contentCheck($riskyContents);
 
         $attributes = $request->only([
             'draw_type', 'draw_time', 'draw_participants', 'desc',

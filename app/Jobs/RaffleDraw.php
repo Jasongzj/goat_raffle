@@ -102,6 +102,8 @@ class RaffleDraw implements ShouldQueue
                     ->whereIn('user_id', $winnerUserIds)
                     ->increment('award_amount');
             }
+            // 通知发起者活动开奖
+            $this->notifyLauncher();
 
             // 通知参与者活动开奖
             $this->notifyParticipants();
@@ -119,7 +121,7 @@ class RaffleDraw implements ShouldQueue
         $this->raffle->save();
 
         // Redis 按过期时间排序，取最临近过期的值
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < 5; $i++) {
             $formId = $this->getFormId($this->raffle->user_id);
             logger('用户'.$this->raffle->user_id . '本次form_id：' . $formId);
             if ($formId) {
@@ -146,7 +148,7 @@ class RaffleDraw implements ShouldQueue
     {
         foreach ($this->raffle->participants as $participant) {
             // Redis 按过期时间排序，取最临近过期的值
-            for ($i = 0; $i < 10; $i++) {
+            for ($i = 0; $i < 5; $i++) {
                 $formId = $this->getFormId($participant->user_id);
                 logger('用户'. $participant->user_id . '本次form_id：' . $formId);
                 if ($formId) {
@@ -209,6 +211,27 @@ class RaffleDraw implements ShouldQueue
                 ];
                 // 剔除已中奖用户
                 unset($userIds[$key]);
+            }
+        }
+    }
+
+    protected function notifyLauncher()
+    {
+        // Redis 按过期时间排序，取最临近过期的值
+        for ($i = 0; $i < 5; $i++) {
+            $formId = $this->getFormId($this->raffle->user_id);
+            logger('用户'.$this->raffle->user_id . '本次form_id：' . $formId);
+            if ($formId) {
+                // 通知发起者活动未开奖
+                $notification = '你发起的抽奖正在开奖，点击查看中奖名单';
+                $result = $this->raffle->sendWechatMessage($this->raffle->launcher->openid, $formId, $this->raffle->id, $notification);
+                // 删除使用的formId
+                Redis::zrem('form_id_of_'.$this->raffle->user_id, $formId);
+
+                // 发送成功则不继续发送
+                if ($result) {
+                    break;
+                }
             }
         }
     }

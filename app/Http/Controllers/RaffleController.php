@@ -164,7 +164,7 @@ class RaffleController extends Controller
         $attributes = $request->only([
             'draw_type', 'draw_time', 'draw_participants', 'desc',
             'context', 'context_img', 'award_type', 'contact_id',
-            'is_sharable'
+            'is_sharable', 'is_show'
         ]);
 
         $raffle = DB::transaction(function () use ($attributes, $awards, $raffle) {

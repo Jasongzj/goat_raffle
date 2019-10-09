@@ -228,4 +228,6 @@ return [
 
     ],
 
+    // 普通抽奖列表缓存时间，默认10分钟
+    'raffle_list_expired' => env('RAFFLE_LIST_EXPIRED', 10),
 ];

@@ -108,7 +108,7 @@ class Raffle extends Model
                     'id', 'name', 'draw_time', 'img', 'user_id',
                 ])
                 ->get();
-            Cache::put('index_resource', $resource, 30*60);
+            Cache::put('index_resource', $resource, config('app.raffle_list_expired') * 60);
         }
         return $resource;
     }

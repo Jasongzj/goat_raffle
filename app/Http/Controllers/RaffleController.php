@@ -47,7 +47,10 @@ class RaffleController extends Controller
     public function top()
     {
         $list = Raffle::query()
-            ->with(['awards:id,raffle_id,name,img,amount',])
+            ->with([
+                'awards:id,raffle_id,name,img,amount',
+                'launcher:id,nick_name,avatar_url',
+            ])
             ->where('status', Raffle::STATUS_NOT_END)
             ->select([
                 'id', 'name', 'draw_time', 'img'
@@ -101,7 +104,7 @@ class RaffleController extends Controller
         $attributes = $request->only([
             'draw_type', 'draw_time', 'draw_participants', 'desc',
             'context', 'context_img', 'award_type', 'contact_id',
-            'is_sharable'
+            'is_sharable', 'is_show'
         ]);
 
 

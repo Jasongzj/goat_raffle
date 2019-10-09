@@ -43,7 +43,7 @@ class Raffle extends Model
     protected $fillable = [
         'name', 'img', 'draw_type', 'draw_time', 'draw_participants',
         'desc', 'context', 'context_img', 'is_sharable', 'contact_id',
-        'award_type', 'sort', 'sponsor',
+        'award_type', 'sort', 'sponsor', 'is_show'
     ];
 
     protected $casts = [
@@ -102,6 +102,7 @@ class Raffle extends Model
                     'launcher:id,nick_name,avatar_url',
                 ])
                 ->where('draw_time', '>', $validTime)
+                ->where('is_show', 1)
                 ->inRandomOrder()
                 ->limit(30)
                 ->select([

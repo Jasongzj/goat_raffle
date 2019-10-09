@@ -25,6 +25,7 @@ class CreateRaffleTable extends Migration
             $table->text('context')->nullable()->comment('图文文字内容');
             $table->text('context_img')->nullable()->comment('图文图片');
             $table->unsignedTinyInteger('is_sharable')->default(0)->comment('是否可分享');
+            $table->unsignedTinyInteger('is_show')->default(1)->comment('是否展示在首页');
             $table->unsignedTinyInteger('award_type')->comment('发奖方式 1 中奖者填写地址 2 中奖者联系发起者');
             $table->unsignedBigInteger('contact_id')->nullable()->comment('中奖者联系方式');
             $table->unsignedTinyInteger('status')->default(0)->comment('开奖状态 0 未开奖 1 已开奖 2 已过期');

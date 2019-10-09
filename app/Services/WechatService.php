@@ -10,7 +10,9 @@ namespace App\Services;
 
 
 use App\Exceptions\WechatException;
+use EasyWeChat\Kernel\Support\File;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class WechatService extends AbstractService
 {
@@ -55,9 +57,36 @@ class WechatService extends AbstractService
      */
     public function checkResponse($response)
     {
-        if (isset($response['errcode'])) {
+        if (is_array($response) && isset($response['errcode'])) {
             Log::error('请求微信接口错误' . $response['errcode'] . '|' . $response['errmsg']);
             throw new WechatException($response['errmsg'], $response['errcode']);
         }
+    }
+
+    /**
+     * 生成小程序菊花码
+     * @param $scene
+     * @param $page
+     * @return mixed
+     * @throws WechatException
+     */
+    public function generateWxCode($scene, $page)
+    {
+        $optional = [
+            'page' => $page,
+        ];
+        $response = $this->getMiniProgram()->app_code->getUnlimit($scene, $optional);
+
+        $this->checkResponse($response);
+
+        // 上传七牛云
+        $contents = $response->getBody()->getContents();
+        $filename = md5($contents) . File::getStreamExt($contents);
+        $path = 'app_codes/' . $filename;
+        $storage = Storage::disk('qiniu');
+        $storage->put($path, $contents);
+        $url = $storage->getUrl($path);
+
+        return $url;
     }
 }

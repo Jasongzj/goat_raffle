@@ -11,6 +11,7 @@ use App\Http\Requests\SubscriptionPicture;
 use App\Http\Resources\RaffleResource;
 use App\Models\Raffle;
 use App\Services\RaffleService;
+use App\Services\WechatService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\Resource;
@@ -290,5 +291,26 @@ class RaffleController extends Controller
             ->paginate(5);
 
         return Resource::collection($list)->additional(JsonResponse::$resourceAdditionalMeta);
+    }
+
+    /**
+     * 获取抽奖菊花码
+     * @param Raffle $raffle
+     * @param WechatService $wechatService
+     * @return mixed
+     */
+    public function getWxAppCode(Raffle $raffle, WechatService $wechatService)
+    {
+        if ($raffle->app_code) {
+            return $this->success($raffle->app_code);
+        }
+        $scene = 'id=' . $raffle->id;
+        $page = 'pages/lottery-detail/index';
+        $url = $wechatService->generateWxCode($scene, $page);
+
+        // 更新抽奖信息
+        $raffle->update(['app_code' => $url]);
+
+        return $this->success($url);
     }
 }

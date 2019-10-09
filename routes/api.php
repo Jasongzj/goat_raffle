@@ -26,6 +26,7 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::post('raffle/upload_award', 'RaffleController@uploadAwardPic'); // 上传奖品图
     Route::post('raffle/upload_context', 'RaffleController@uploadContext'); // 上传奖品图
     Route::post('raffle/upload_subs', 'RaffleController@uploadSubscription'); // 上传奖品图
+    Route::get('raffle/app_code/{raffle}', 'RaffleController@getWxAppCode'); // 获取小程序码
 
     Route::get('raffle/launch', 'RaffleController@launchedRaffle'); // 我发起的抽奖
     Route::get('raffle/participate', 'RaffleController@participatedRaffle');  // 我参与的抽奖

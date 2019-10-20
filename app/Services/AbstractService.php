@@ -26,6 +26,11 @@ abstract class AbstractService
         return EasyWeChat::miniProgram();
     }
 
+    public function getOfficialAccount()
+    {
+        return EasyWeChat::officialAccount();
+    }
+
     /**
      * 获取 Client 的实例
      * @return Client

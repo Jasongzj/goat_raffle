@@ -29,6 +29,7 @@ class ExpireFormId implements ShouldQueue
         $expiredAt = Carbon::now()->getTimestamp();
         foreach ($userIds as $userId) {
             Redis::zremrangebyscore('form_id_of_'. $userId, 0, $expiredAt);
+            Redis::zremrangebyscore('test_form_id_of_'.$userId, 0, $expiredAt);
         }
     }
 }

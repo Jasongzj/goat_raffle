@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Raffle;
 use App\Models\RaffleWhitelist;
+use App\Models\User;
 use App\Models\UserStat;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
@@ -120,24 +121,21 @@ class RaffleDraw implements ShouldQueue
         $this->raffle->status = Raffle::STATUS_ENDED;
         $this->raffle->save();
 
-        // Redis 按过期时间排序，取最临近过期的值
-        for ($i = 0; $i < 5; $i++) {
-            $formId = $this->getFormId($this->raffle->user_id);
-            logger('用户'.$this->raffle->user_id . '本次form_id：' . $formId);
-            if ($formId) {
-                // 通知发起者活动未开奖
-                $notification = '你发起的抽奖未开奖，因参与人数为0';
-                $result = $this->raffle->sendWechatMessage($this->raffle->launcher->openid, $formId, $this->raffle->id, $notification);
-                // 删除使用的formId
-                Redis::zrem('form_id_of_'.$this->raffle->user_id, $formId);
-
-                // 发送成功则不继续发送
-                if ($result) {
-                    break;
-                }
-            }
-        }
+        $notification = '你发起的抽奖未开奖，因参与人数为0';
+        $this->handleNotification($this->raffle->launcher, $this->raffle->id, $notification);
     }
+
+    /**
+     * 通知发起者抽奖结果
+     * @throws \EasyWeChat\Kernel\Exceptions\InvalidArgumentException
+     * @throws \EasyWeChat\Kernel\Exceptions\InvalidConfigException
+     */
+    protected function notifyLauncher()
+    {
+        $notification = '你发起的抽奖正在开奖，点击查看中奖名单';
+        $this->handleNotification($this->raffle->launcher, $this->raffle->id, $notification);
+    }
+
 
     /**
      * 发送模版消息通知参与者正在开奖
@@ -147,22 +145,8 @@ class RaffleDraw implements ShouldQueue
     protected function notifyParticipants()
     {
         foreach ($this->raffle->participants as $participant) {
-            // Redis 按过期时间排序，取最临近过期的值
-            for ($i = 0; $i < 5; $i++) {
-                $formId = $this->getFormId($participant->user_id);
-                logger('用户'. $participant->user_id . '本次form_id：' . $formId);
-                if ($formId) {
-                    $notification = $this->raffle->launcher->nick_name . ' 发起的活动正在开奖，快来看看你中奖了没有';
-                    $result = $this->raffle->sendWechatMessage($participant->user->openid, $formId, $this->raffle->id, $notification);
-                    // 删除使用的formId
-                    Redis::zrem('form_id_of_'.$participant->user_id, $formId);
-
-                    if ($result) {
-                        break;
-                    }
-                }
-            }
-
+            $notification = $this->raffle->launcher->nick_name . ' 发起的活动正在开奖，快来看看你中奖了没有';
+            $this->handleNotification($participant->user, $this->raffle->id, $notification);
         }
     }
 
@@ -174,7 +158,13 @@ class RaffleDraw implements ShouldQueue
     protected function getFormId($userId)
     {
         // 返回的是个 array
-        $formId = Redis::zrange('form_id_of_'.$userId, 0, 1);
+        // Redis 按过期时间排序，取最临近过期的值
+        if (app()->environment('production')) {
+            $formId = Redis::zrange('form_id_of_'.$userId, 0, 1);
+        } else {
+            $formId = Redis::zrange('test_form_id_of_'.$userId, 0, 1);
+        }
+
         if ($formId) {
             return $formId[0];
         }
@@ -215,20 +205,26 @@ class RaffleDraw implements ShouldQueue
         }
     }
 
-    protected function notifyLauncher()
+    /**
+     * 处理模版消息消息通知
+     * @param $participant
+     * @throws \EasyWeChat\Kernel\Exceptions\InvalidArgumentException
+     * @throws \EasyWeChat\Kernel\Exceptions\InvalidConfigException
+     */
+    protected function handleNotification(User $user, $raffleId, $notification)
     {
-        // Redis 按过期时间排序，取最临近过期的值
         for ($i = 0; $i < 5; $i++) {
-            $formId = $this->getFormId($this->raffle->user_id);
-            logger('用户'.$this->raffle->user_id . '本次form_id：' . $formId);
+            $formId = $this->getFormId($user->id);
+            logger('用户' . $user->id . '本次form_id：' . $formId);
             if ($formId) {
-                // 通知发起者活动未开奖
-                $notification = '你发起的抽奖正在开奖，点击查看中奖名单';
-                $result = $this->raffle->sendWechatMessage($this->raffle->launcher->openid, $formId, $this->raffle->id, $notification);
+                $result = $this->raffle->sendWechatMessage($user->openid, $formId, $raffleId, $notification);
                 // 删除使用的formId
-                Redis::zrem('form_id_of_'.$this->raffle->user_id, $formId);
+                if (app()->environment('production')) {
+                    Redis::zrem('form_id_of_' . $user->id, $formId);
+                } else {
+                    Redis::zrem('test_form_id_of_' . $user->id, $formId);
+                }
 
-                // 发送成功则不继续发送
                 if ($result) {
                     break;
                 }

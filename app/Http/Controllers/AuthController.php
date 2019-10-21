@@ -65,8 +65,13 @@ class AuthController extends Controller
     {
         $user = Auth::guard('api')->user();
         $expiredAt = Carbon::now()->addDays(7)->getTimestamp();
-        // 在队列尾部插入新的form_id, 分数为过期时间
-        Redis::zadd('form_id_of_'. $user->id, $expiredAt, $request->input('form_id'));
+        if (app()->environment('production')) {
+            // 在队列尾部插入新的form_id, 分数为过期时间
+            Redis::zadd('form_id_of_'. $user->id, $expiredAt, $request->input('form_id'));
+        } else {
+            Redis::zadd('test_form_id_of_'. $user->id, $expiredAt, $request->input('form_id'));
+        }
+
         return $this->message('保存成功');
     }
 }

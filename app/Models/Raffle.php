@@ -181,7 +181,7 @@ class Raffle extends Model
     {
         $msg = [
             'touser' => $openid,
-            'template_id' => 'i4AYaMUfOGTLMDOwCLDnjsW4Je3moxua4VZtOvYV_NE',
+            'template_id' => '-09w5etRbRyvucY3vREzAWdBjmuY4tAcXkglYxuiaqo',
             'page' => '/pages/lottery-detail/index?id='.$raffleId,
             'form_id' => $formId,
             'data' => [

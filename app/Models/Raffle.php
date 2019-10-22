@@ -102,13 +102,13 @@ class Raffle extends Model
                     'awards:id,raffle_id,name,img,amount',
                     'launcher:id,nick_name,avatar_url',
                 ])
-                ->where('draw_time', '<', $drawTime)
+                ->whereBetween('draw_time', [Carbon::now(), $drawTime])
                 ->where('is_show', 1)
                 ->where('status', static::STATUS_NOT_END)
                 ->inRandomOrder()
                 ->limit(30)
                 ->select([
-                    'id', 'name', 'draw_time', 'img', 'user_id',
+                    'id', 'name', 'draw_time', 'img', 'user_id', 'status'
                 ])
                 ->get();
             if ($resource->count() < 30) {
@@ -125,11 +125,11 @@ class Raffle extends Model
                     ->inRandomOrder()
                     ->limit(30 - $resource->count())
                     ->select([
-                        'id', 'name', 'draw_time', 'img', 'user_id',
+                        'id', 'name', 'draw_time', 'img', 'user_id', 'status'
                     ])
                     ->get();
-                
-                $resource->merge($restResource);
+
+                $resource = $resource->merge($restResource);
             }
             Cache::put('index_resource', $resource, config('app.raffle_list_expired') * 60);
         }

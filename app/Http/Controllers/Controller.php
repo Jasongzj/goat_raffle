@@ -55,6 +55,12 @@ class Controller extends BaseController
         return $url;
     }
 
+    /**
+     * 文字内容鉴黄处理
+     * @param $content
+     * @throws WechatException
+     * @throws \EasyWeChat\Kernel\Exceptions\InvalidConfigException
+     */
     public function contentCheck($content)
     {
         // 鉴黄处理
@@ -64,5 +70,17 @@ class Controller extends BaseController
             Log::notice('上传的文本包含违规内容，文件内容：' . $content);
             throw new WechatException('上传的文本包含敏感内容', 400);
         }
+    }
+
+    /**
+     * 移除域名
+     * @param $domain
+     * @param $url
+     * @return false|string
+     */
+    public function removeDomain($domain, $url)
+    {
+        $length = strlen(rtrim($domain, '/').'/');
+        return substr($url, $length);
     }
 }

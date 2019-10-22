@@ -36,8 +36,6 @@ class Raffle extends Model
         self::STATUS_ENDED => '已开奖',
     ];
 
-    public $participatedRaffleIds = [];
-
     protected $table = 'raffle';
 
     protected $fillable = [
@@ -178,15 +176,16 @@ class Raffle extends Model
     public function getHasParticipatedAttribute()
     {
         $user = Auth::guard('api')->user();
-        if (!$this->participatedRaffleIds && $user) {
+        $participatedRaffleIds = Cache::get('user_participated_raffle:'.$user->id);
+        if (!$participatedRaffleIds) {
             $participatedRaffleIds = UserRaffle::query()
                 ->where('user_id', $user->id)
                 ->get(['raffle_id'])
                 ->pluck('raffle_id')
                 ->all();
-            $this->participatedRaffleIds = $participatedRaffleIds;
+            Cache::put('user_participated_raffle:'.$user->id, $participatedRaffleIds, 10);
         }
-        return in_array($this->attributes['id'], $this->participatedRaffleIds) ? true : false;
+        return in_array($this->attributes['id'], $participatedRaffleIds) ? true : false;
     }
 
     /**

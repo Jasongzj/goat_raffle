@@ -8,6 +8,7 @@ use App\Services\WechatService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\UserContactResource;
+use Illuminate\Support\Facades\Storage;
 
 class UserContactsController extends Controller
 {
@@ -28,6 +29,7 @@ class UserContactsController extends Controller
      * @param Request $request
      * @return mixed
      * @throws \App\Exceptions\WechatException
+     * @throws \EasyWeChat\Kernel\Exceptions\InvalidConfigException
      */
     public function store(Request $request)
     {
@@ -48,6 +50,7 @@ class UserContactsController extends Controller
      * @param Request $request
      * @return mixed
      * @throws \App\Exceptions\WechatException
+     * @throws \EasyWeChat\Kernel\Exceptions\InvalidConfigException
      */
     public function update(UserContact $contact, Request $request)
     {
@@ -60,8 +63,20 @@ class UserContactsController extends Controller
         return $this->message('更新成功');
     }
 
+    /**
+     * 删除快捷关注信息
+     * @param UserContact $contact
+     * @return mixed
+     * @throws \Exception
+     */
     public function destroy(UserContact $contact)
     {
+        // 删除七牛云图片
+        $url = $contact->img;
+        $path = $this->removeDomain(config('filesystems.disks.qiniu.domain'), $url);
+
+        Storage::disk('qiniu')->delete($path);
+
         $contact->delete();
 
         return $this->message('删除成功');

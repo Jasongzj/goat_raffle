@@ -298,6 +298,7 @@ class RaffleController extends Controller
      * @param Raffle $raffle
      * @param WechatService $wechatService
      * @return mixed
+     * @throws \App\Exceptions\WechatException
      */
     public function getWxAppCode(Raffle $raffle, WechatService $wechatService)
     {

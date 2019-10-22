@@ -95,20 +95,42 @@ class Raffle extends Model
     {
         $resource = Cache::get('index_resource');
         if (!$resource) {
-            $validTime = Carbon::now()->subDays(3);
+            // 先查询 3 天内开奖的抽奖记录
+            $drawTime = Carbon::now()->addDays(3);
             $resource = static::query()
                 ->with([
                     'awards:id,raffle_id,name,img,amount',
                     'launcher:id,nick_name,avatar_url',
                 ])
-                ->where('draw_time', '>', $validTime)
+                ->where('draw_time', '<', $drawTime)
                 ->where('is_show', 1)
+                ->where('status', static::STATUS_NOT_END)
                 ->inRandomOrder()
                 ->limit(30)
                 ->select([
                     'id', 'name', 'draw_time', 'img', 'user_id',
                 ])
                 ->get();
+            if ($resource->count() < 30) {
+                // 数量不足时获取开奖时间 3 天内的抽奖
+                $validTime = Carbon::now()->subDays(3);
+                $restResource = static::query()
+                    ->with([
+                        'awards:id,raffle_id,name,img,amount',
+                        'launcher:id,nick_name,avatar_url',
+                    ])
+                    ->where('draw_time', '>', $validTime)
+                    ->where('is_show', 1)
+                    ->where('status', static::STATUS_ENDED)
+                    ->inRandomOrder()
+                    ->limit(30 - $resource->count())
+                    ->select([
+                        'id', 'name', 'draw_time', 'img', 'user_id',
+                    ])
+                    ->get();
+                
+                $resource->merge($restResource);
+            }
             Cache::put('index_resource', $resource, config('app.raffle_list_expired') * 60);
         }
         return $resource;

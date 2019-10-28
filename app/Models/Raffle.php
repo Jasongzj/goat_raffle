@@ -93,8 +93,8 @@ class Raffle extends Model
     {
         $resource = Cache::get('index_resource');
         if (!$resource) {
-            // 先查询 3 天内开奖的抽奖记录
-            $drawTime = Carbon::now()->addDays(3);
+            // 先查询 7 天内开奖的抽奖记录
+            $drawTime = Carbon::now()->addDays(7);
             $resource = static::query()
                 ->with([
                     'awards:id,raffle_id,name,img,amount',
@@ -110,8 +110,8 @@ class Raffle extends Model
                 ])
                 ->get();
             if ($resource->count() < 30) {
-                // 数量不足时获取开奖时间 3 天内的抽奖
-                $validTime = Carbon::now()->subDays(3);
+                // 数量不足时获取过去 7 天内开奖的抽奖
+                $validTime = Carbon::now()->subDays(7);
                 $restResource = static::query()
                     ->with([
                         'awards:id,raffle_id,name,img,amount',

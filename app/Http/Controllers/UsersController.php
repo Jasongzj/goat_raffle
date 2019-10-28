@@ -21,7 +21,7 @@ class UsersController extends Controller
     public function updateInfo(Request $request, WechatService $service)
     {
         $user = Auth::guard('api')->user();
-        $cacheKey = $cacheKey = User::$cacheSessionKeyPrefix. $user->id . User::$cacheSessionKeySuffix;
+        $cacheKey = User::$cacheSessionKeyPrefix. $user->id . User::$cacheSessionKeySuffix;
         $sessionKey = Cache::get($cacheKey);
         if (!$sessionKey) {
             return $this->unauthorized('授权过期，请重新登录');

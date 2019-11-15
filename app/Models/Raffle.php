@@ -176,6 +176,11 @@ class Raffle extends Model
     public function getHasParticipatedAttribute()
     {
         $user = Auth::guard('api')->user();
+        
+        if (!$user) {
+            return false;
+        }
+
         $participatedRaffleIds = Cache::get('user_participated_raffle:'.$user->id);
         if (!$participatedRaffleIds) {
             $participatedRaffleIds = UserRaffle::query()

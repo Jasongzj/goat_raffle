@@ -8,6 +8,7 @@ use App\Models\RaffleWhitelist;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Resources\Json\Resource;
+use Illuminate\Support\Facades\Cache;
 
 class RaffleController extends Controller
 {
@@ -66,6 +67,9 @@ class RaffleController extends Controller
             $raffle->sponsor = $sponsor;
         }
         $raffle->save();
+
+        // 清空抽奖列表的缓存
+        Cache::forget('index_resource');
         return $this->message('更新成功');
     }
 }
